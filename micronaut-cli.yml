@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: com.mok
+testFramework: junit
+sourceLanguage: java
+buildTool: maven
+features: [app-name, data, data-jpa, http-client-test, jackson-databind, java, java-application, jdbc-hikari, junit, logback, maven, maven-enforcer-plugin, micronaut-aot, micronaut-http-validation, micronaut-processing-compiler-args, multi-tenancy, mysql, netty-server, properties, readme, security, security-annotations, security-csrf, security-jwt, serialization-jackson, shade, static-resources, test-resources]

@@ -1,0 +1,31 @@
+micronaut:
+  application:
+    name: ddd
+  security:
+    authentication: bearer
+    token:
+      jwt:
+        signatures:
+          secret:
+            generator:
+              secret: ${JWT_GENERATOR_SIGNATURE_SECRET:pleaseChangeThisSecretForANewOne}
+  data:
+    jpa:
+      repositories:
+        enabled: true
+  jpa:
+    default:
+      properties:
+        hibernate:
+          hbm2ddl:
+            auto: update
+          show_sql: true
+
+datasources:
+  default:
+    url: ${JDBC_URL:`jdbc:mysql://localhost:3306/ddd_admin?useSSL=false&serverTimezone=UTC`}
+    username: ${JDBC_USER:root}
+    password: ${JDBC_PASSWORD:123456}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    db-type: mysql
+    dialect: MYSQL
