@@ -18,15 +18,15 @@ public class AuditEntityListener {
     public void setCreatedBy(Object entity) {
         if (entity instanceof BaseEntity base) {
             String user = securityService.username().orElse("system");
-            base.setCreatedBy(user);
-            base.setUpdatedBy(user);
+            base.setCreateBy(user);
+            base.setUpdateBy(user);
         }
     }
 
     @PreUpdate
     public void setUpdatedBy(Object entity) {
         if (entity instanceof BaseEntity base) {
-            base.setUpdatedBy(securityService.username().orElse("system"));
+            base.setUpdateBy(securityService.username().orElse("system"));
         }
     }
 }

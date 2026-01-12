@@ -16,26 +16,26 @@ public abstract class BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "created_by")
-    private String createdBy;
+    @Column(name = "create_by")
+    private String createBy;
 
-    @Column(name = "updated_by")
-    private String updatedBy;
+    @Column(name = "update_by")
+    private String updateBy;
 
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "create_time", updatable = false)
+    private LocalDateTime createTime;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "update_time")
+    private LocalDateTime updateTime;
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.createTime = LocalDateTime.now();
+        this.updateTime = LocalDateTime.now();
     }
 
     @PreUpdate
     protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
+        this.updateTime = LocalDateTime.now();
     }
 }
