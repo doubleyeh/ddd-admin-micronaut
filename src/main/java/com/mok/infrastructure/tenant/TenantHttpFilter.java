@@ -19,7 +19,7 @@ public class TenantHttpFilter implements HttpServerFilter {
                 .orElse(Const.SUPER_TENANT_ID);
 
         return Mono.defer(() ->
-                ScopedValue.where(TenantContext.TENANT_ID, tenantId)
+                ScopedValue.where(TenantContextHolder.TENANT_ID, tenantId)
                         .call(() -> Mono.from(chain.proceed(request)))
         );
     }

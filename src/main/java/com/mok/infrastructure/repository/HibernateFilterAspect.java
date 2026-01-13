@@ -1,6 +1,6 @@
 package com.mok.infrastructure.repository;
 
-import com.mok.infrastructure.tenant.TenantContext;
+import com.mok.infrastructure.tenant.TenantContextHolder;
 import io.micronaut.aop.MethodInterceptor;
 import io.micronaut.aop.MethodInvocationContext;
 import jakarta.inject.Singleton;
@@ -17,9 +17,9 @@ public class HibernateFilterAspect implements MethodInterceptor<Object, Object> 
 
     @Override
     public Object intercept(MethodInvocationContext<Object, Object> context) {
-        if (!TenantContext.isSuperTenant()) {
+        if (!TenantContextHolder.isSuperTenant()) {
             Session session = entityManager.unwrap(Session.class);
-            session.enableFilter("tenantFilter").setParameter("tenantId", TenantContext.getTenantId());
+            session.enableFilter("tenantFilter").setParameter("tenantId", TenantContextHolder.getTenantId());
         }
         return context.proceed();
     }

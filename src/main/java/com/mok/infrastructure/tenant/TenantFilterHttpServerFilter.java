@@ -18,7 +18,7 @@ public class TenantFilterHttpServerFilter implements HttpServerFilter {
         if (tenantId == null) {
             tenantId = Const.SUPER_TENANT_ID;
         }
-        return ScopedValue.where(TenantContext.TENANT_ID, tenantId)
+        return ScopedValue.where(TenantContextHolder.TENANT_ID, tenantId)
                 .call(() -> Flux.from(chain.proceed(request)));
     }
 }

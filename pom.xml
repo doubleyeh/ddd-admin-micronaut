@@ -22,6 +22,7 @@
     <micronaut.aot.packageName>com.mok.aot.generated</micronaut.aot.packageName>
     <micronaut.test.resources.enabled>false</micronaut.test.resources.enabled>
     <exec.mainClass>com.mok.Application</exec.mainClass>
+    <mapstruct.version>1.6.3</mapstruct.version>
   </properties>
 
   <repositories>
@@ -83,6 +84,11 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
+      <groupId>io.micronaut.redis</groupId>
+      <artifactId>micronaut-redis-lettuce</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <scope>runtime</scope>
@@ -100,9 +106,19 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct</artifactId>
+      <version>${mapstruct.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.yaml</groupId>
       <artifactId>snakeyaml</artifactId>
       <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mindrot</groupId>
+      <artifactId>jbcrypt</artifactId>
+      <version>0.4</version>
     </dependency>
 
     <dependency>
@@ -163,6 +179,11 @@
               <groupId>org.projectlombok</groupId>
               <artifactId>lombok</artifactId>
               <version>1.18.42</version>
+            </path>
+            <path>
+              <groupId>org.mapstruct</groupId>
+              <artifactId>mapstruct-processor</artifactId>
+              <version>${mapstruct.version}</version>
             </path>
             <path>
               <groupId>io.micronaut</groupId>
