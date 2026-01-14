@@ -27,7 +27,7 @@ public class TenantContextPopulatingFilter implements HttpServerFilter {
     public Publisher<MutableHttpResponse<?>> doFilter(HttpRequest<?> request, ServerFilterChain chain) {
         // 排除不需要租户信息的路径
         if (request.getPath().startsWith("/public") || request.getPath().startsWith("/api/auth/login")) {
-             return chain.proceed(request);
+            return chain.proceed(request);
         }
 
         Optional<io.micronaut.security.authentication.Authentication> authOpt = securityService.getAuthentication();
@@ -48,14 +48,14 @@ public class TenantContextPopulatingFilter implements HttpServerFilter {
         }
 
         if (tenantId == null || tenantId.isBlank()) {
-             throw new BizException("无法获取租户信息");
+            throw new BizException("无法获取租户信息");
         }
 
         // 绑定所有上下文值并继续执行过滤器链
         String finalTenantId = tenantId;
         String finalUsername = username;
         Long finalUserId = userId;
-        
+
         return ScopedValue.where(TenantContextHolder.TENANT_ID, finalTenantId)
                 .where(TenantContextHolder.USERNAME, finalUsername)
                 .where(TenantContextHolder.USER_ID, finalUserId)

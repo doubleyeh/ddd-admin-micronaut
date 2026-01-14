@@ -1,6 +1,5 @@
 package com.mok.infrastructure.tenant;
 
-import com.mok.infrastructure.common.Const;
 import com.mok.infrastructure.util.SysUtil;
 
 public class TenantContextHolder {

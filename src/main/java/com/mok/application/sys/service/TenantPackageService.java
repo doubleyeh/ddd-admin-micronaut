@@ -3,10 +3,7 @@ package com.mok.application.sys.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mok.application.exception.BizException;
-import com.mok.application.sys.dto.tenantPackage.TenantPackageDTO;
-import com.mok.application.sys.dto.tenantPackage.TenantPackageGrantDTO;
-import com.mok.application.sys.dto.tenantPackage.TenantPackageOptionDTO;
-import com.mok.application.sys.dto.tenantPackage.TenantPackageSaveDTO;
+import com.mok.application.sys.dto.tenantPackage.*;
 import com.mok.application.sys.mapper.MenuMapper;
 import com.mok.application.sys.mapper.PermissionMapper;
 import com.mok.application.sys.mapper.TenantPackageMapper;
@@ -21,6 +18,8 @@ import com.mok.infrastructure.common.Const;
 import io.lettuce.core.api.sync.RedisCommands;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.util.StringUtils;
+import io.micronaut.data.model.Page;
+import io.micronaut.data.model.Pageable;
 import io.micronaut.transaction.annotation.Transactional;
 import jakarta.inject.Singleton;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +41,12 @@ public class TenantPackageService {
     private final MenuMapper menuMapper;
     private final PermissionMapper permissionMapper;
     private final ObjectMapper objectMapper;
+
+    @Transactional(readOnly = true)
+    public Page<TenantPackageDTO> findPage(TenantPackageQuery query, Pageable pageable) {
+        Page<TenantPackage> entityPage = packageRepository.findAll(query.toPredicate(), pageable);
+        return entityPage.map(packageMapper::toDto);
+    }
 
     @Transactional
     public void createPackage(TenantPackageSaveDTO dto) {
@@ -126,7 +131,8 @@ public class TenantPackageService {
         String cached = redisCommands.get(cacheKey);
         if (cached != null) {
             try {
-                return objectMapper.readValue(cached, new TypeReference<Set<Long>>() {});
+                return objectMapper.readValue(cached, new TypeReference<Set<Long>>() {
+                });
             } catch (IOException e) {
                 // Log error
             }
@@ -151,7 +157,8 @@ public class TenantPackageService {
         String cached = redisCommands.get(cacheKey);
         if (cached != null) {
             try {
-                return objectMapper.readValue(cached, new TypeReference<Set<Long>>() {});
+                return objectMapper.readValue(cached, new TypeReference<Set<Long>>() {
+                });
             } catch (IOException e) {
                 // Log error
             }

@@ -1,6 +1,7 @@
 package com.mok.domain.sys.model;
 
 import com.mok.domain.common.TenantBaseEntity;
+import io.micronaut.core.annotation.Introspected;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "sys_login_log")
+@Introspected
 public class LoginLog extends TenantBaseEntity {
 
     private String username;

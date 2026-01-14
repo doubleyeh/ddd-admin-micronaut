@@ -2,10 +2,7 @@ package com.mok.application.sys.service;
 
 import com.mok.application.exception.BizException;
 import com.mok.application.exception.NotFoundException;
-import com.mok.application.sys.dto.dict.DictDataDTO;
-import com.mok.application.sys.dto.dict.DictDataSaveDTO;
-import com.mok.application.sys.dto.dict.DictTypeDTO;
-import com.mok.application.sys.dto.dict.DictTypeSaveDTO;
+import com.mok.application.sys.dto.dict.*;
 import com.mok.application.sys.mapper.DictDataMapper;
 import com.mok.application.sys.mapper.DictTypeMapper;
 import com.mok.domain.sys.model.DictData;
@@ -14,6 +11,8 @@ import com.mok.domain.sys.repository.DictDataRepository;
 import com.mok.domain.sys.repository.DictTypeRepository;
 import com.mok.infrastructure.common.Const;
 import io.lettuce.core.api.sync.RedisCommands;
+import io.micronaut.data.model.Page;
+import io.micronaut.data.model.Pageable;
 import io.micronaut.transaction.annotation.Transactional;
 import jakarta.inject.Singleton;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +29,12 @@ public class DictService {
     private final DictTypeMapper dictTypeMapper;
     private final DictDataMapper dictDataMapper;
     private final RedisCommands<String, String> redisCommands;
+
+    @Transactional(readOnly = true)
+    public Page<DictTypeDTO> findPage(DictTypeQuery query, Pageable pageable) {
+        Page<DictType> entityPage = dictTypeRepository.findAll(query.toPredicate(), pageable);
+        return entityPage.map(dictTypeMapper::toDto);
+    }
 
     @Transactional
     public DictTypeDTO createType(DictTypeSaveDTO dto) {

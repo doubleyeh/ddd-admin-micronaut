@@ -26,7 +26,7 @@ public class TenantPackageController {
     @Get
     @Secured("hasAuthority('tenantPackage:list')")
     public RestResponse<Page<@NonNull TenantPackageDTO>> findPage(TenantPackageQuery query, Pageable pageable) {
-        Page<@NonNull TenantPackageDTO> page = packageService.findPage(query.toPredicate(), pageable);
+        Page<@NonNull TenantPackageDTO> page = packageService.findPage(query, pageable);
         return RestResponse.success(page);
     }
 

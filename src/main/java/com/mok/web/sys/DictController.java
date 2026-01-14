@@ -21,7 +21,7 @@ public class DictController {
     @Get("/type")
     @Secured("hasAuthority('dict:list')")
     public RestResponse<Page<DictTypeDTO>> findTypePage(DictTypeQuery query, Pageable pageable) {
-        return RestResponse.success(dictService.findPage(query.toPredicate(), pageable));
+        return RestResponse.success(dictService.findPage(query, pageable));
     }
 
     @Post("/type")

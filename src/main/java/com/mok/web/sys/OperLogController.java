@@ -21,7 +21,7 @@ public class OperLogController {
     @Get
     @Secured("hasAuthority('log:oper:list')")
     public RestResponse<Page<@NonNull OperLogDTO>> findPage(OperLogQuery query, Pageable pageable) {
-        Page<@NonNull OperLogDTO> page = operLogService.findPage(query.toPredicate(), pageable);
+        Page<@NonNull OperLogDTO> page = operLogService.findPage(query, pageable);
         return RestResponse.success(page);
     }
 }

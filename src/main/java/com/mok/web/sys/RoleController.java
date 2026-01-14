@@ -26,7 +26,7 @@ public class RoleController {
     @Get
     @Secured("hasAuthority('role:list')")
     public RestResponse<Page<@NonNull RoleDTO>> findPage(RoleQuery query, Pageable pageable) {
-        Page<@NonNull RoleDTO> page = roleService.findPage(query.toPredicate(), pageable);
+        Page<@NonNull RoleDTO> page = roleService.findPage(query, pageable);
         return RestResponse.success(page);
     }
 

@@ -33,6 +33,10 @@ datasources:
 # JPA / Hibernate Configuration
 jpa:
   default:
+    entity-scan:
+      packages:
+        - "com.mok.domain.common"
+        - 'com.mok.domain.sys.model'
     properties:
       hibernate:
         hbm2ddl:

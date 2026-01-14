@@ -21,7 +21,7 @@ public class PermissionController {
     public RestResponse<List<PermissionDTO>> findByMenuId(@PathVariable Long menuId) {
         PermissionQuery query = new PermissionQuery();
         query.setMenuId(menuId);
-        return RestResponse.success(permissionService.findAll(query.toPredicate()));
+        return RestResponse.success(permissionService.findAll(query));
     }
 
     @Post

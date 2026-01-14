@@ -2,15 +2,20 @@ package com.mok.domain.sys.repository;
 
 
 import com.mok.domain.sys.model.Permission;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.data.annotation.Query;
 import io.micronaut.data.jpa.repository.JpaRepository;
+import io.micronaut.data.model.Page;
+import io.micronaut.data.model.Pageable;
+import io.micronaut.data.repository.PageableRepository;
+import io.micronaut.data.repository.jpa.criteria.PredicateSpecification;
 import io.micronaut.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-public interface PermissionRepository extends JpaRepository<Permission, Long> {
+public interface PermissionRepository extends PageableRepository<Permission, Long>, JpaRepository<Permission, Long> {
 
     @Transactional
     @Query("update com.mok.ddd.domain.sys.model.Permission p set p.menu.id = ?1 where p.id in ?2")
@@ -38,4 +43,8 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
 
     @Query("SELECT p FROM com.mok.ddd.domain.sys.model.Permission p WHERE p.id IN :ids")
     List<Permission> findAllById(Collection<Long> ids);
+
+    Page<Permission> findAll(@Nullable PredicateSpecification<Permission> spec, Pageable pageable);
+
+    List<Permission> findAll(@Nullable PredicateSpecification<Permission> spec);
 }

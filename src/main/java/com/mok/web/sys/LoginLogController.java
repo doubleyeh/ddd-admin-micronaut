@@ -21,7 +21,7 @@ public class LoginLogController {
     @Get
     @Secured("hasAuthority('log:login:list')")
     public RestResponse<Page<LoginLogDTO>> findPage(LoginLogQuery query, Pageable pageable) {
-        Page<LoginLogDTO> page = loginLogService.findPage(query.toPredicate(), pageable);
+        Page<LoginLogDTO> page = loginLogService.findPage(query, pageable);
         return RestResponse.success(page);
     }
 }

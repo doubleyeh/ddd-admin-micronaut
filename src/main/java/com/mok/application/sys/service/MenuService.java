@@ -34,6 +34,11 @@ public class MenuService {
     private final TenantRepository tenantRepository;
     private final TenantPackageService tenantPackageService;
 
+    @Transactional(readOnly = true)
+    public List<MenuDTO> findAll() {
+        return menuMapper.toDtoList(menuRepository.findAll());
+    }
+
     @Transactional
     public MenuDTO createMenu(@NonNull MenuDTO dto) {
         Menu parent = null;

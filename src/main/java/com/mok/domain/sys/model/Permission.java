@@ -1,6 +1,7 @@
 package com.mok.domain.sys.model;
 
 import com.mok.domain.common.BaseEntity;
+import io.micronaut.core.annotation.Introspected;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "sys_permission")
 @Getter
+@Introspected
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Permission extends BaseEntity {
     private String name;

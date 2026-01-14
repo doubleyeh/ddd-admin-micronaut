@@ -28,7 +28,7 @@ public class UserController {
     @Get
     @Secured("hasAuthority('user:list')")
     public RestResponse<Page<@NonNull UserDTO>> findPage(UserQuery query, Pageable pageable) {
-        Page<@NonNull UserDTO> page = userService.findPage(query.toPredicate(), pageable);
+        Page<@NonNull UserDTO> page = userService.findPage(query, pageable);
         return RestResponse.success(page);
     }
 
@@ -95,7 +95,7 @@ public class UserController {
         return RestResponse.success();
     }
 
-    private boolean isCurrentUser(Long id){
+    private boolean isCurrentUser(Long id) {
         Long currentUserId = TenantContextHolder.getUserId();
         return currentUserId != null && currentUserId.equals(id);
     }

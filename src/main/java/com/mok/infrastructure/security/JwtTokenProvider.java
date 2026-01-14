@@ -12,9 +12,7 @@ import jakarta.inject.Singleton;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -106,7 +104,7 @@ public class JwtTokenProvider {
         Map<String, List<TokenSessionDTO>> grouped = sessions.stream()
                 .filter(s -> s.getPrincipal() != null)
                 .filter(s -> isSuper || s.getTenantId().equals(currentTenantId))
-                .collect(Collectors.groupingBy(s -> s.getTenantId() + ":" + s.getPrincipal().getUserId()));
+                .collect(Collectors.groupingBy(s -> s.getTenantId() + ":" + s.getPrincipal().userId()));
 
         return grouped.values().stream().map(userSessions -> {
             TokenSessionDTO first = userSessions.getFirst();
@@ -119,7 +117,7 @@ public class JwtTokenProvider {
                     )).toList();
 
             return new OnlineUserDTO(
-                    first.getPrincipal().getUserId(),
+                    first.getPrincipal().userId(),
                     first.getUsername(),
                     first.getTenantId(),
                     tenantMap.getOrDefault(first.getTenantId(), first.getTenantId()),

@@ -1,6 +1,7 @@
 package com.mok.domain.sys.model;
 
 import com.mok.domain.common.BaseEntity;
+import io.micronaut.core.annotation.Introspected;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,6 +14,7 @@ import java.util.Set;
 @Table(name = "sys_menu")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Introspected
 public class Menu extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")

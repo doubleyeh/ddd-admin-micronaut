@@ -6,6 +6,7 @@ import com.mok.infrastructure.common.Const;
 import io.micronaut.core.annotation.Introspected;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.util.Set;
 
 @Entity

@@ -27,7 +27,7 @@ public class TenantController {
     @Get
     @Secured("hasAuthority('tenant:list')")
     public RestResponse<Page<@NonNull TenantDTO>> findPage(TenantQuery query, Pageable pageable) {
-        Page<@NonNull TenantDTO> page = tenantService.findPage(query.toPredicate(), pageable);
+        Page<@NonNull TenantDTO> page = tenantService.findPage(query, pageable);
         return RestResponse.success(page);
     }
 
@@ -58,7 +58,7 @@ public class TenantController {
     @Put("/{id}/state")
     @Secured("hasAuthority('tenant:update')")
     @OperLogRecord(title = "租户管理", businessType = BusinessType.UPDATE)
-    public RestResponse<TenantDTO> updateState(@PathVariable Long id,@Valid @NotNull @QueryValue Integer state) {
+    public RestResponse<TenantDTO> updateState(@PathVariable Long id, @Valid @NotNull @QueryValue Integer state) {
         TenantDTO updatedTenant = tenantService.updateTenantState(id, state);
         return RestResponse.success(updatedTenant);
     }

@@ -2,17 +2,19 @@ package com.mok.domain.sys.model;
 
 import com.mok.domain.common.TenantBaseEntity;
 import com.mok.infrastructure.common.Const;
+import io.micronaut.core.annotation.Introspected;
+import io.micronaut.core.annotation.NonNull;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import io.micronaut.core.annotation.NonNull;
 
 import java.util.Set;
 
 @Entity
 @Table(name = "sys_role")
 @Getter
+@Introspected
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Role extends TenantBaseEntity {
     private String name;

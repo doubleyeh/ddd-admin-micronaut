@@ -1,18 +1,20 @@
 package com.mok.domain.sys.model;
 
 import com.mok.domain.common.BaseEntity;
+import io.micronaut.core.annotation.Introspected;
+import io.micronaut.core.annotation.NonNull;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import io.micronaut.core.annotation.NonNull;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "sys_dict_type")
+@Introspected
 public class DictType extends BaseEntity {
 
     /**
