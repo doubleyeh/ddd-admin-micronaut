@@ -31,3 +31,8 @@ replay_pid*
 /aot-jar.properties
 target
 .idea
+.classpath
+.project
+/.settings
+/.zed
+.factorypath

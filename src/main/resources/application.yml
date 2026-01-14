@@ -32,13 +32,12 @@ datasources:
 
 # JPA / Hibernate Configuration
 jpa:
-  datasources:
-    default:
-      properties:
-        hibernate:
-          hbm2ddl:
-            auto: update
-          show_sql: true
+  default:
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: update
+        show_sql: true
 
 # Redis Configuration
 redis:
