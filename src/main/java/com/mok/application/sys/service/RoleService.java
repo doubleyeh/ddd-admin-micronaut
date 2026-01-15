@@ -4,10 +4,7 @@ import com.mok.application.exception.BizException;
 import com.mok.application.exception.NotFoundException;
 import com.mok.application.sys.dto.menu.MenuDTO;
 import com.mok.application.sys.dto.permission.PermissionDTO;
-import com.mok.application.sys.dto.role.RoleDTO;
-import com.mok.application.sys.dto.role.RoleGrantDTO;
-import com.mok.application.sys.dto.role.RoleOptionDTO;
-import com.mok.application.sys.dto.role.RoleSaveDTO;
+import com.mok.application.sys.dto.role.*;
 import com.mok.application.sys.mapper.MenuMapper;
 import com.mok.application.sys.mapper.PermissionMapper;
 import com.mok.application.sys.mapper.RoleMapper;
@@ -20,6 +17,8 @@ import com.mok.domain.sys.repository.RoleRepository;
 import com.mok.infrastructure.common.Const;
 import io.lettuce.core.api.sync.RedisCommands;
 import io.micronaut.core.annotation.NonNull;
+import io.micronaut.data.model.Page;
+import io.micronaut.data.model.Pageable;
 import io.micronaut.transaction.annotation.Transactional;
 import jakarta.inject.Singleton;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +40,11 @@ public class RoleService {
     private final PermissionMapper permissionMapper;
     private final MenuMapper menuMapper;
     private final RedisCommands<String, String> redisCommands;
+
+    @Transactional(readOnly = true)
+    public Page<RoleDTO> findPage(RoleQuery query, Pageable pageable) {
+        return roleRepository.findRolePage(query.toPredicate(), pageable);
+    }
 
     @Transactional(readOnly = true)
     public RoleDTO getById(Long id) {
@@ -113,8 +117,8 @@ public class RoleService {
     }
 
     @Transactional(readOnly = true)
-    public List<RoleOptionDTO> getRoleOptions() {
-        return roleRepository.findAll().stream()
+    public List<RoleOptionDTO> getRoleOptions(RoleQuery query) {
+        return roleRepository.findAll(query.toPredicate()).stream()
                 .filter(role -> Objects.equals(role.getState(), Const.RoleState.NORMAL))
                 .map(roleMapper::toOptionsDto)
                 .collect(Collectors.toList());

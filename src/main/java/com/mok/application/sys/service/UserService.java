@@ -4,10 +4,7 @@ import com.mok.application.exception.BizException;
 import com.mok.application.exception.NotFoundException;
 import com.mok.application.sys.dto.auth.AccountInfoDTO;
 import com.mok.application.sys.dto.menu.MenuDTO;
-import com.mok.application.sys.dto.user.UserDTO;
-import com.mok.application.sys.dto.user.UserPasswordDTO;
-import com.mok.application.sys.dto.user.UserPostDTO;
-import com.mok.application.sys.dto.user.UserPutDTO;
+import com.mok.application.sys.dto.user.*;
 import com.mok.application.sys.mapper.MenuMapper;
 import com.mok.application.sys.mapper.UserMapper;
 import com.mok.domain.sys.model.*;
@@ -17,6 +14,8 @@ import com.mok.infrastructure.sys.security.PasswordEncoder;
 import com.mok.infrastructure.tenant.TenantContextHolder;
 import com.mok.infrastructure.util.SysUtil;
 import io.micronaut.core.annotation.NonNull;
+import io.micronaut.data.model.Page;
+import io.micronaut.data.model.Pageable;
 import io.micronaut.transaction.annotation.Transactional;
 import jakarta.inject.Singleton;
 import lombok.AllArgsConstructor;
@@ -38,6 +37,16 @@ public class UserService {
     private final PermissionService permissionService;
     private final TenantRepository tenantRepository;
     private final TenantPackageRepository tenantPackageRepository;
+
+    @Transactional(readOnly = true)
+    public Page<UserDTO> findPage(UserQuery query, Pageable pageable) {
+        return userRepository.findUserPage(query.toPredicate(), pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public UserDTO getById(Long id) {
+        return userMapper.toDto(userRepository.findById(id).orElseThrow(() -> new NotFoundException(Const.NOT_FOUND_MESSAGE)));
+    }
 
     @Transactional
     public UserDTO create(@NonNull UserPostDTO dto) {

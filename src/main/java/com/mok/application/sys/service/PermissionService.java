@@ -2,6 +2,7 @@ package com.mok.application.sys.service;
 
 import com.mok.application.exception.NotFoundException;
 import com.mok.application.sys.dto.permission.PermissionDTO;
+import com.mok.application.sys.dto.permission.PermissionQuery;
 import com.mok.application.sys.mapper.PermissionMapper;
 import com.mok.domain.sys.model.Menu;
 import com.mok.domain.sys.model.Permission;
@@ -11,6 +12,8 @@ import com.mok.infrastructure.common.Const;
 import io.lettuce.core.api.sync.RedisCommands;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.util.CollectionUtils;
+import io.micronaut.data.model.Page;
+import io.micronaut.data.model.Pageable;
 import io.micronaut.transaction.annotation.Transactional;
 import jakarta.inject.Singleton;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +30,19 @@ public class PermissionService {
     private final MenuRepository menuRepository;
     private final PermissionMapper permissionMapper;
     private final RedisCommands<String, String> redisCommands;
+
+    @Transactional(readOnly = true)
+    public Page<PermissionDTO> findPage(PermissionQuery query, Pageable pageable) {
+        Page<Permission> entityPage = permissionRepository.findAll(query.toPredicate(), pageable);
+        return entityPage.map(permissionMapper::toDto);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PermissionDTO> findAll(PermissionQuery query) {
+        List<Permission> list = permissionRepository.findAll(query.toPredicate());
+
+        return list.stream().map(permissionMapper::toDto).toList();
+    }
 
     @Transactional
     public PermissionDTO createPermission(@NonNull PermissionDTO dto) {

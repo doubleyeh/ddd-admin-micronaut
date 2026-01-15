@@ -1,6 +1,7 @@
 package com.mok.domain.sys.model;
 
 import com.mok.domain.common.TenantBaseEntity;
+import io.micronaut.core.annotation.Introspected;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
@@ -13,6 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "sys_oper_log")
+@Introspected
 public class OperLog extends TenantBaseEntity {
 
     /**

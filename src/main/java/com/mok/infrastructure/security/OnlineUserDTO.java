@@ -14,5 +14,6 @@ public record OnlineUserDTO(
             String ip,
             String browser,
             long loginTime
-    ) {}
+    ) {
+    }
 }

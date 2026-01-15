@@ -2,6 +2,7 @@ package com.mok.domain.sys.model;
 
 import com.mok.domain.common.BaseEntity;
 import com.mok.infrastructure.common.Const;
+import io.micronaut.core.annotation.Introspected;
 import io.micronaut.core.annotation.NonNull;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -13,6 +14,7 @@ import java.util.Set;
 @Entity
 @Table(name = "sys_tenant_package")
 @Getter
+@Introspected
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TenantPackage extends BaseEntity {
     private String name;

@@ -1,6 +1,7 @@
 package com.mok.domain.sys.model;
 
 import com.mok.domain.common.BaseEntity;
+import io.micronaut.core.annotation.Introspected;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -9,13 +10,14 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "sys_permission")
 @Getter
+@Introspected
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Permission extends BaseEntity {
     private String name;
     private String code;
     /**
      * 接口路径 (URL Pattern)
-     * * 说明：对应后端 API 的 RequestMapping 路径。
+     * * 说明：对应后端 API 的 Controller 路径。
      * 作用：用于【动态权限拦截】。
      * 示例："/api/users/**" 或 "/api/roles/{id}"。
      * 逻辑：当用户发起请求时，系统会拿当前请求的真实 URL 去数据库比对，看该用户是否有权访问此路径。

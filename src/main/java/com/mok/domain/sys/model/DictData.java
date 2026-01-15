@@ -2,6 +2,7 @@ package com.mok.domain.sys.model;
 
 
 import com.mok.domain.common.BaseEntity;
+import io.micronaut.core.annotation.Introspected;
 import io.micronaut.core.annotation.NonNull;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,6 +18,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "sys_dict_data", indexes = {
         @Index(name = "idx_dict_type", columnList = "type_code")
 })
+@Introspected
 public class DictData extends BaseEntity {
 
     /**
@@ -53,7 +55,7 @@ public class DictData extends BaseEntity {
     private String listClass;
 
     /**
-* 是否默认
+     * 是否默认
      */
     @Column(name = "is_default")
     private Boolean isDefault;

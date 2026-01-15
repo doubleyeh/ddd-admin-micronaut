@@ -1,10 +1,7 @@
 package com.mok.application.sys.service;
 
 import com.mok.application.exception.BizException;
-import com.mok.application.sys.dto.tenant.TenantCreateResultDTO;
-import com.mok.application.sys.dto.tenant.TenantDTO;
-import com.mok.application.sys.dto.tenant.TenantOptionDTO;
-import com.mok.application.sys.dto.tenant.TenantSaveDTO;
+import com.mok.application.sys.dto.tenant.*;
 import com.mok.application.sys.event.TenantCreatedEvent;
 import com.mok.application.sys.mapper.TenantMapper;
 import com.mok.domain.sys.model.Tenant;
@@ -16,6 +13,8 @@ import io.lettuce.core.api.sync.RedisCommands;
 import io.micronaut.context.event.ApplicationEventPublisher;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.util.StringUtils;
+import io.micronaut.data.model.Page;
+import io.micronaut.data.model.Pageable;
 import io.micronaut.transaction.annotation.Transactional;
 import jakarta.inject.Singleton;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +31,16 @@ public class TenantService {
     private final TenantMapper tenantMapper;
     private final ApplicationEventPublisher<TenantCreatedEvent> eventPublisher;
     private final RedisCommands<String, String> redisCommands;
+
+    @Transactional(readOnly = true)
+    public Page<TenantDTO> findPage(TenantQuery query, Pageable pageable) {
+        return tenantRepository.findTenantPage(query.toPredicate(), pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public TenantDTO getById(@NonNull Long id) {
+        return tenantMapper.toDto(tenantRepository.findById(id).orElseThrow(() -> new BizException("租户不存在")));
+    }
 
     @Transactional
     public TenantCreateResultDTO createTenant(@NonNull TenantSaveDTO dto) {

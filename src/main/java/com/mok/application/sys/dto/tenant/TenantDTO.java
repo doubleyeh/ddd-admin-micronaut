@@ -18,7 +18,7 @@ public class TenantDTO {
     private Long packageId;
     private String packageName;
 
-    public boolean isEnabled(){
+    public boolean isEnabled() {
         return Objects.equals(Const.TenantState.NORMAL, state);
     }
 }

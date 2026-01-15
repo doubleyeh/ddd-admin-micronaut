@@ -52,7 +52,7 @@ public class RateLimiterInterceptor implements MethodInterceptor<Object, Object>
         int count = 30;
         String keyPrefix = "rate_limit:";
         LimitType limitType = LimitType.DEFAULT;
-        if(rateLimiter.isPresent()){
+        if (rateLimiter.isPresent()) {
             time = rateLimiter.get().get("time", Integer.class).orElse(1);
             count = rateLimiter.get().get("count", Integer.class).orElse(30);
             keyPrefix = rateLimiter.get().get("key", String.class).orElse("rate_limit:");
