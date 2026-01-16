@@ -86,6 +86,8 @@ class TenantPackageServiceTest {
         when(permission.getId()).thenReturn(100L);
         when(permissionRepository.findAllById(dto.getPermissionIds())).thenReturn(Collections.singletonList(permission));
 
+        when(packageRepository.save(any(TenantPackage.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
         packageService.grant(packageId, dto);
 
         ArgumentCaptor<TenantPackage> captor = ArgumentCaptor.forClass(TenantPackage.class);

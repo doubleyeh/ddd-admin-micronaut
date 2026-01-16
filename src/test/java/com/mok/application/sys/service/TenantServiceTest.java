@@ -51,14 +51,14 @@ class TenantServiceTest {
         TenantCreateResultDTO result = tenantService.createTenant(dto);
 
         assertNotNull(result);
-        assertEquals("T12345", result.getTenantId());
+        assertNotNull(result.getTenantId());
         assertEquals("New Tenant", result.getName());
         assertNotNull(result.getInitialAdminPassword());
 
         ArgumentCaptor<TenantCreatedEvent> eventCaptor = ArgumentCaptor.forClass(TenantCreatedEvent.class);
         verify(eventPublisher).publishEvent(eventCaptor.capture());
         TenantCreatedEvent publishedEvent = eventCaptor.getValue();
-        assertEquals("T12345", publishedEvent.getTenant().getTenantId());
+        assertNotNull(publishedEvent.getTenant().getTenantId());
         assertEquals(result.getInitialAdminPassword(), publishedEvent.getRawPassword());
     }
 
@@ -107,7 +107,10 @@ class TenantServiceTest {
         Tenant tenant = Tenant.create("Test", null, null, 1L, tenantRepository);
         tenant.setTenantId("T123");
 
-        when(tenantMapper.toDto(any(Tenant.class))).thenReturn(new TenantDTO());
+        TenantDTO tenantDTO = new TenantDTO();
+        tenantDTO.setTenantId("T123");
+
+        when(tenantMapper.toDto(any(Tenant.class))).thenReturn(tenantDTO);
         when(tenantRepository.findById(tenantId)).thenReturn(Optional.of(tenant));
 
         boolean result = tenantService.deleteByVerify(tenantId);

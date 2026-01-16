@@ -55,6 +55,16 @@ public class DictType extends BaseEntity {
         return dictType;
     }
 
+    public static DictType create(@NonNull String name, @NonNull String code, Integer sort, String remark, Boolean isSystem) {
+        DictType dictType = new DictType();
+        dictType.name = name;
+        dictType.code = code;
+        dictType.sort = sort;
+        dictType.remark = remark;
+        dictType.isSystem = isSystem;
+        return dictType;
+    }
+
     public void updateInfo(@NonNull String name, Integer sort, String remark) {
         this.name = name;
         this.sort = sort;

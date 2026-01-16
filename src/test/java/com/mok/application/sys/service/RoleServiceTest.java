@@ -120,6 +120,8 @@ class RoleServiceTest {
         when(permission.getId()).thenReturn(100L);
         when(permissionRepository.findAllById(dto.getPermissionIds())).thenReturn(Collections.singletonList(permission));
 
+        when(roleRepository.save(any(Role.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
         roleService.grant(roleId, dto);
 
         ArgumentCaptor<Role> captor = ArgumentCaptor.forClass(Role.class);

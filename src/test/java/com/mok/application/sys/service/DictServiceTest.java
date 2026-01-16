@@ -105,7 +105,7 @@ class DictServiceTest {
         dto.setId(1L);
         dto.setCode("new_code");
 
-        DictType systemType = DictType.create("System Dict", "system_code", 1, "");
+        DictType systemType = DictType.create("System Dict", "system_code", 1, "", true);
         
 
         when(dictTypeRepository.findById(1L)).thenReturn(Optional.of(systemType));
@@ -132,7 +132,7 @@ class DictServiceTest {
     @Test
     void deleteType_SystemDict_ShouldThrowBizException() {
         Long typeId = 1L;
-        DictType systemType = DictType.create("System Dict", "system_code", 1, "");
+        DictType systemType = DictType.create("System Dict", "system_code", 1, "", true);
         
 
         when(dictTypeRepository.findById(typeId)).thenReturn(Optional.of(systemType));
@@ -170,7 +170,7 @@ class DictServiceTest {
         DictDataSaveDTO dto = new DictDataSaveDTO();
         dto.setTypeCode("system_type");
 
-        DictType parentType = DictType.create("System Type", "system_type", 1, "");
+        DictType parentType = DictType.create("System Type", "system_type", 1, "", true);
         when(dictTypeRepository.findByCode("system_type")).thenReturn(Optional.of(parentType));
 
         Exception exception = assertThrows(BizException.class, () -> dictService.createData(dto));
