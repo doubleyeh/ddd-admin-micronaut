@@ -75,10 +75,16 @@ public class Role extends TenantBaseEntity {
     }
 
     public void changePermissions(Set<Permission> newPermissions) {
-        this.permissions = newPermissions;
+        this.permissions.clear();
+        if (newPermissions != null) {
+            this.permissions.addAll(newPermissions);
+        }
     }
 
     public void changeMenus(Set<Menu> newMenus) {
-        this.menus = newMenus;
+        this.menus.clear();
+        if (newMenus != null) {
+            this.menus.addAll(newMenus);
+        }
     }
 }

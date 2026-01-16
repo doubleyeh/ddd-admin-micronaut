@@ -7,6 +7,7 @@ import com.mok.domain.sys.model.OperLog;
 import com.mok.domain.sys.repository.OperLogRepository;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
+import io.micronaut.data.repository.jpa.criteria.PredicateSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,9 +16,7 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class OperLogServiceTest {
 
@@ -43,14 +42,14 @@ class OperLogServiceTest {
         Page<OperLog> entityPage = Page.of(Collections.singletonList(operLog), pageable, 1L);
         Page<OperLogDTO> dtoPage = Page.of(Collections.singletonList(operLogDTO), pageable, 1L);
 
-        when(operLogRepository.findAll(query.toPredicate(), eq(pageable))).thenReturn(entityPage);
+        when(operLogRepository.findAll(any(PredicateSpecification.class), eq(pageable))).thenReturn(entityPage);
         when(operLogMapper.toDto(operLog)).thenReturn(operLogDTO);
 
         Page<OperLogDTO> result = operLogService.findPage(query, pageable);
 
         assertEquals(dtoPage.getContent(), result.getContent());
         assertEquals(dtoPage.getTotalSize(), result.getTotalSize());
-        verify(operLogRepository).findAll(query.toPredicate(), eq(pageable));
+        verify(operLogRepository).findAll(any(PredicateSpecification.class), eq(pageable));
         verify(operLogMapper).toDto(operLog);
     }
 }
