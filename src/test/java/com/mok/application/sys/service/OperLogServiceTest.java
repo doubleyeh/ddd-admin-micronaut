@@ -49,6 +49,7 @@ class OperLogServiceTest {
 
         assertEquals(dtoPage.getContent(), result.getContent());
         assertEquals(dtoPage.getTotalSize(), result.getTotalSize());
+        
         verify(operLogRepository).findAll(any(PredicateSpecification.class), eq(pageable));
         verify(operLogMapper).toDto(operLog);
     }

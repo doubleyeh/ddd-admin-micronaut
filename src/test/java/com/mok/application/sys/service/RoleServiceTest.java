@@ -114,11 +114,11 @@ class RoleServiceTest {
 
         Menu menu = mock(Menu.class);
         when(menu.getId()).thenReturn(10L);
-        when(menuRepository.findByIdIn(new ArrayList<>(dto.getMenuIds()))).thenReturn(Collections.singletonList(menu));
+        when(menuRepository.findByIdIn(any())).thenReturn(Collections.singletonList(menu));
 
         Permission permission = mock(Permission.class);
         when(permission.getId()).thenReturn(100L);
-        when(permissionRepository.findAllById(dto.getPermissionIds())).thenReturn(Collections.singletonList(permission));
+        when(permissionRepository.findAllById(any())).thenReturn(Collections.singletonList(permission));
 
         when(roleRepository.save(any(Role.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
