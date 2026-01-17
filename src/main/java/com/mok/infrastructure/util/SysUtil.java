@@ -19,16 +19,21 @@ public final class SysUtil {
 
     public static String getIpAddress(HttpRequest<?> request) {
         String ip = request.getHeaders().get("X-Forwarded-For");
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+        if (ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip)) {
+        } else {
             ip = request.getHeaders().get("Proxy-Client-IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeaders().get("WL-Proxy-Client-IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            InetSocketAddress remoteAddress = request.getRemoteAddress();
-            if (remoteAddress != null && remoteAddress.getAddress() != null) {
-                ip = remoteAddress.getAddress().getHostAddress();
+            if (ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip)) {
+            } else {
+                ip = request.getHeaders().get("WL-Proxy-Client-IP");
+                if (ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip)) {
+                } else {
+                    InetSocketAddress remoteAddress = request.getRemoteAddress();
+                    if (remoteAddress != null && remoteAddress.getAddress() != null) {
+                        ip = remoteAddress.getAddress().getHostAddress();
+                    } else {
+                        ip = null;
+                    }
+                }
             }
         }
         return ip != null && ip.contains(",") ? ip.split(",")[0] : ip;

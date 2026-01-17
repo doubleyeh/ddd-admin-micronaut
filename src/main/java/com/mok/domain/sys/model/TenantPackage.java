@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -59,14 +60,22 @@ public class TenantPackage extends BaseEntity {
     }
 
     public void changeMenus(Set<Menu> newMenus) {
-        this.menus.clear();
+        if (this.menus == null) {
+            this.menus = new HashSet<>();
+        } else {
+            this.menus.clear();
+        }
         if (newMenus != null) {
             this.menus.addAll(newMenus);
         }
     }
 
     public void changePermissions(Set<Permission> newPermissions) {
-        this.permissions.clear();
+        if (this.permissions == null) {
+            this.permissions = new HashSet<>();
+        } else {
+            this.permissions.clear();
+        }
         if (newPermissions != null) {
             this.permissions.addAll(newPermissions);
         }
