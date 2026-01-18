@@ -2,7 +2,10 @@ package com.mok.application.sys.service;
 
 import com.mok.application.exception.BizException;
 import com.mok.application.exception.NotFoundException;
+import com.mok.application.sys.dto.dict.DictDataDTO;
 import com.mok.application.sys.dto.dict.DictDataSaveDTO;
+import com.mok.application.sys.dto.dict.DictTypeDTO;
+import com.mok.application.sys.dto.dict.DictTypeQuery;
 import com.mok.application.sys.dto.dict.DictTypeSaveDTO;
 import com.mok.application.sys.mapper.DictDataMapper;
 import com.mok.application.sys.mapper.DictTypeMapper;
@@ -12,10 +15,14 @@ import com.mok.domain.sys.repository.DictDataRepository;
 import com.mok.domain.sys.repository.DictTypeRepository;
 import com.mok.infrastructure.common.Const;
 import io.lettuce.core.api.sync.RedisCommands;
+import io.micronaut.data.model.Page;
+import io.micronaut.data.model.Pageable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -99,7 +106,7 @@ class DictServiceTest {
         assertEquals("Updated remark", savedEntity.getRemark());
     }
 
-    @Test
+@Test
     void updateType_SystemDictChangeCode_ShouldThrowBizException() {
         DictTypeSaveDTO dto = new DictTypeSaveDTO();
         dto.setId(1L);
@@ -112,6 +119,28 @@ class DictServiceTest {
 
         Exception exception = assertThrows(BizException.class, () -> dictService.updateType(dto));
         assertEquals("系统内置字典禁止修改编码", exception.getMessage());
+    }
+
+    @Test
+    void updateType_SystemDictSameCode_ShouldAllowUpdate() {
+        DictTypeSaveDTO dto = new DictTypeSaveDTO();
+        dto.setId(1L);
+        dto.setCode("system_code");
+        dto.setName("Updated Name");
+        dto.setSort(2);
+        dto.setRemark("Updated remark");
+
+        DictType systemType = DictType.create("System Dict", "system_code", 1, "", true);
+        
+
+        when(dictTypeRepository.findById(1L)).thenReturn(Optional.of(systemType));
+        when(dictTypeRepository.save(any())).thenReturn(systemType);
+        when(dictTypeMapper.toDto(any())).thenReturn(new DictTypeDTO());
+
+        DictTypeDTO result = dictService.updateType(dto);
+
+        assertNotNull(result);
+        verify(dictTypeRepository).save(systemType);
     }
 
     @Test
@@ -194,9 +223,152 @@ class DictServiceTest {
         verify(redisCommands).del(Const.CacheKey.DICT_DATA + "test_type");
     }
     
-    @Test
+@Test
     void deleteData_NotFound_ShouldThrowNotFoundException() {
         when(dictDataRepository.findById(99L)).thenReturn(Optional.empty());
         assertThrows(NotFoundException.class, () -> dictService.deleteData(99L));
+    }
+
+    @Test
+    void findPage_Success() {
+        DictTypeQuery query = new DictTypeQuery();
+        Pageable pageable = Pageable.from(0, 10);
+        
+        DictType dictType = DictType.create("Test Type", "test_type", 1, "Test remark");
+        Page<DictType> entityPage = Page.of(Arrays.asList(dictType), Pageable.from(0, 10), 1L);
+        
+        when(dictTypeRepository.findAll(any(), any())).thenReturn(entityPage);
+        when(dictTypeMapper.toDto(dictType)).thenReturn(new DictTypeDTO());
+        
+        Page<DictTypeDTO> result = dictService.findPage(query, pageable);
+        
+        assertNotNull(result);
+        assertEquals(1, result.getContent().size());
+        verify(dictTypeRepository).findAll(any(), any());
+    }
+
+    @Test
+    void getDataByType_Success() {
+        String typeCode = "test_type";
+        DictData dictData = DictData.create(typeCode, "Label", "Value", 1, null, null, false, null);
+        
+        when(dictDataRepository.findByTypeCodeOrderBySortAsc(typeCode))
+                .thenReturn(Arrays.asList(dictData));
+        when(dictDataMapper.toDto(dictData)).thenReturn(new DictDataDTO());
+        
+        List<DictDataDTO> result = dictService.getDataByType(typeCode);
+        
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(dictDataRepository).findByTypeCodeOrderBySortAsc(typeCode);
+    }
+
+    @Test
+    void updateData_Success() {
+        DictDataSaveDTO dto = new DictDataSaveDTO();
+        dto.setId(1L);
+        dto.setTypeCode("test_type");
+        dto.setLabel("Updated Label");
+        dto.setValue("Updated Value");
+        dto.setSort(2);
+        
+        DictData existingData = DictData.create("test_type", "Old Label", "Old Value", 1, null, null, false, null);
+        DictType parentType = DictType.create("Test Type", "test_type", 1, "");
+        
+        when(dictDataRepository.findById(1L)).thenReturn(Optional.of(existingData));
+        when(dictTypeRepository.findByCode("test_type")).thenReturn(Optional.of(parentType));
+        when(dictDataRepository.save(any())).thenReturn(existingData);
+        when(dictDataMapper.toDto(any())).thenReturn(new DictDataDTO());
+        
+        DictDataDTO result = dictService.updateData(dto);
+        
+        assertNotNull(result);
+        verify(dictDataRepository).save(any());
+        verify(redisCommands).del(Const.CacheKey.DICT_DATA + "test_type");
+    }
+
+    @Test
+    void updateData_NotFound_ShouldThrowNotFoundException() {
+        DictDataSaveDTO dto = new DictDataSaveDTO();
+        dto.setId(99L);
+        
+        when(dictDataRepository.findById(99L)).thenReturn(Optional.empty());
+        
+        assertThrows(NotFoundException.class, () -> dictService.updateData(dto));
+    }
+
+    @Test
+    void updateData_SystemDict_ShouldThrowBizException() {
+        DictDataSaveDTO dto = new DictDataSaveDTO();
+        dto.setId(1L);
+        dto.setTypeCode("system_type");
+        
+        DictData existingData = DictData.create("system_type", "Label", "Value", 1, null, null, false, null);
+        DictType systemType = DictType.create("System Type", "system_type", 1, "", true);
+        
+        when(dictDataRepository.findById(1L)).thenReturn(Optional.of(existingData));
+        when(dictTypeRepository.findByCode("system_type")).thenReturn(Optional.of(systemType));
+        
+        Exception exception = assertThrows(BizException.class, () -> dictService.updateData(dto));
+        assertEquals("系统内置字典禁止修改数据", exception.getMessage());
+    }
+
+    @Test
+    void updateData_TypeCodeChanged_ShouldClearBothCaches() {
+        DictDataSaveDTO dto = new DictDataSaveDTO();
+        dto.setId(1L);
+        dto.setTypeCode("new_type");
+        dto.setLabel("Updated Label");
+        dto.setValue("Updated Value");
+        
+        DictData existingData = DictData.create("old_type", "Old Label", "Old Value", 1, null, null, false, null);
+        DictType newType = DictType.create("New Type", "new_type", 1, "");
+        
+        // Create updated entity with new type code
+        DictData updatedData = DictData.create("new_type", "Updated Label", "Updated Value", 1, null, null, false, null);
+        
+        when(dictDataRepository.findById(1L)).thenReturn(Optional.of(existingData));
+        when(dictTypeRepository.findByCode("new_type")).thenReturn(Optional.of(newType));
+        when(dictDataRepository.save(any())).thenReturn(updatedData);
+        when(dictDataMapper.toDto(any())).thenReturn(new DictDataDTO());
+        
+        dictService.updateData(dto);
+        
+        verify(redisCommands).del(Const.CacheKey.DICT_DATA + "old_type");
+        verify(redisCommands).del(Const.CacheKey.DICT_DATA + "new_type");
+    }
+
+    @Test
+    void deleteType_NotFound_ShouldThrowNotFoundException() {
+        when(dictTypeRepository.findById(99L)).thenReturn(Optional.empty());
+        assertThrows(NotFoundException.class, () -> dictService.deleteType(99L));
+    }
+
+    @Test
+    void updateType_NotFound_ShouldThrowNotFoundException() {
+        DictTypeSaveDTO dto = new DictTypeSaveDTO();
+        dto.setId(99L);
+        
+        when(dictTypeRepository.findById(99L)).thenReturn(Optional.empty());
+        
+        assertThrows(NotFoundException.class, () -> dictService.updateType(dto));
+    }
+
+    @Test
+    void createData_TypeNotFound_ShouldProceed() {
+        DictDataSaveDTO dto = new DictDataSaveDTO();
+        dto.setTypeCode("nonexistent_type");
+        dto.setLabel("Label");
+        dto.setValue("Value");
+        
+        when(dictTypeRepository.findByCode("nonexistent_type")).thenReturn(Optional.empty());
+        when(dictDataRepository.save(any())).thenReturn(DictData.create("nonexistent_type", "Label", "Value", 1, null, null, false, null));
+        when(dictDataMapper.toDto(any())).thenReturn(new DictDataDTO());
+        
+        DictDataDTO result = dictService.createData(dto);
+        
+        assertNotNull(result);
+        verify(dictDataRepository).save(any());
+        verify(redisCommands).del(Const.CacheKey.DICT_DATA + "nonexistent_type");
     }
 }
