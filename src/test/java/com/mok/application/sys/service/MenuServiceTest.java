@@ -285,10 +285,10 @@ class MenuServiceTest {
         List<MenuDTO> tree = menuService.buildMenuTree(flatList);
 
         assertEquals(1, tree.size());
-        assertEquals("Root", tree.get(0).getName());
-        assertNotNull(tree.get(0).getChildren());
-        assertEquals(1, tree.get(0).getChildren().size());
-        assertEquals("Child", tree.get(0).getChildren().get(0).getName());
+        assertEquals("Root", tree.getFirst().getName());
+        assertNotNull(tree.getFirst().getChildren());
+        assertEquals(1, tree.getFirst().getChildren().size());
+        assertEquals("Child", tree.getFirst().getChildren().getFirst().getName());
     }
 
     @Test
@@ -304,7 +304,7 @@ class MenuServiceTest {
         List<MenuDTO> tree = menuService.buildMenuTree(flatList);
 
         assertEquals(1, tree.size());
-        assertEquals("Root", tree.get(0).getName());
+        assertEquals("Root", tree.getFirst().getName());
     }
 
     @Test
@@ -331,7 +331,7 @@ class MenuServiceTest {
         List<MenuDTO> tree = menuService.buildMenuTree(flatList);
 
         assertEquals(1, tree.size());
-        assertEquals(2, tree.get(0).getChildren().size());
+        assertEquals(2, tree.getFirst().getChildren().size());
     }
 
     @Test
@@ -402,8 +402,8 @@ class MenuServiceTest {
         List<MenuDTO> tree = menuService.buildMenuTree(list);
 
         assertEquals(1, tree.size());
-        assertNotNull(tree.get(0).getChildren());
-        assertTrue(tree.get(0).getChildren().isEmpty());
+        assertNotNull(tree.getFirst().getChildren());
+        assertTrue(tree.getFirst().getChildren().isEmpty());
     }
 
     @Test
@@ -458,8 +458,8 @@ class MenuServiceTest {
         List<MenuDTO> tree = menuService.buildMenuTree(list);
 
         assertEquals(1, tree.size());
-        assertEquals("Parent", tree.get(0).getName());
-        assertTrue(tree.get(0).getChildren() == null || tree.get(0).getChildren().isEmpty());
+        assertEquals("Parent", tree.getFirst().getName());
+        assertTrue(tree.getFirst().getChildren() == null || tree.getFirst().getChildren().isEmpty());
     }
 
     @Test
@@ -480,9 +480,9 @@ class MenuServiceTest {
         List<MenuDTO> tree = menuService.buildMenuTree(list);
 
         assertEquals(1, tree.size());
-        assertEquals("Parent", tree.get(0).getName());
-        assertNotNull(tree.get(0).getChildren());
-        assertTrue(tree.get(0).getChildren().isEmpty());
+        assertEquals("Parent", tree.getFirst().getName());
+        assertNotNull(tree.getFirst().getChildren());
+        assertTrue(tree.getFirst().getChildren().isEmpty());
     }
 
     @Test
@@ -502,7 +502,7 @@ class MenuServiceTest {
         
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(1L, result.get(0).getId());
+        assertEquals(1L, result.getFirst().getId());
     }
 
     @Test
@@ -534,7 +534,7 @@ class MenuServiceTest {
         
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(1L, result.get(0).getId());
+        assertEquals(1L, result.getFirst().getId());
     }
 
     @Test
@@ -572,10 +572,10 @@ class MenuServiceTest {
         );
 
         assertEquals(1, result.size());
-        MenuOptionDTO dto = result.get(0);
+        MenuOptionDTO dto = result.getFirst();
         assertNotNull(dto.getPermissions());
         assertEquals(1, dto.getPermissions().size());
-        assertEquals(10L, dto.getPermissions().get(0).getId());
+        assertEquals(10L, dto.getPermissions().getFirst().getId());
     }
 
     @Test
@@ -604,7 +604,7 @@ class MenuServiceTest {
         );
 
         assertEquals(1, result.size());
-        assertNull(result.get(0).getPermissions());
+        assertNull(result.getFirst().getPermissions());
     }
 
     @Test
@@ -642,11 +642,11 @@ class MenuServiceTest {
         );
 
         assertEquals(1, result.size());
-        MenuOptionDTO dto = result.get(0);
+        MenuOptionDTO dto = result.getFirst();
         assertNotNull(dto.getChildren());
         assertEquals(1, dto.getChildren().size());
-        assertEquals("[按钮] Btn", dto.getChildren().get(0).getName());
-        assertTrue(dto.getChildren().get(0).getIsPermission());
+        assertEquals("[按钮] Btn", dto.getChildren().getFirst().getName());
+        assertTrue(dto.getChildren().getFirst().getIsPermission());
     }
 
     @Test
@@ -664,7 +664,7 @@ class MenuServiceTest {
         );
 
         assertEquals(1, result.size());
-        assertNull(result.get(0).getPermissions());
+        assertNull(result.getFirst().getPermissions());
     }
 
     @Test
@@ -695,7 +695,7 @@ class MenuServiceTest {
         );
 
         assertEquals(1, result.size());
-        MenuOptionDTO parentDto = result.get(0);
+        MenuOptionDTO parentDto = result.getFirst();
         assertEquals("Parent", parentDto.getName());
         
         assertNotNull(parentDto.getChildren());
@@ -759,10 +759,10 @@ class MenuServiceTest {
         );
 
         assertEquals(1, result.size());
-        assertEquals("Parent", result.get(0).getName());
-        assertEquals(1, result.get(0).getChildren().size());
-        assertEquals("Child", result.get(0).getChildren().get(0).getName());
-        assertEquals(1L, result.get(0).getChildren().get(0).getParentId());
+        assertEquals("Parent", result.getFirst().getName());
+        assertEquals(1, result.getFirst().getChildren().size());
+        assertEquals("Child", result.getFirst().getChildren().getFirst().getName());
+        assertEquals(1L, result.getFirst().getChildren().getFirst().getParentId());
     }
 
     @Test
@@ -783,7 +783,7 @@ class MenuServiceTest {
         );
 
         assertEquals(1, result.size());
-        assertEquals("Root", result.get(0).getName());
+        assertEquals("Root", result.getFirst().getName());
     }
 
     @Test
@@ -813,7 +813,7 @@ class MenuServiceTest {
         );
 
         assertEquals(1, result.size());
-        assertEquals(2, result.get(0).getChildren().size());
+        assertEquals(2, result.getFirst().getChildren().size());
     }
 
     @Test
@@ -893,8 +893,40 @@ class MenuServiceTest {
         );
 
         assertEquals(1, result.size());
-        assertEquals("Parent", result.get(0).getName());
-        assertNotNull(result.get(0).getChildren());
-        assertTrue(result.get(0).getChildren().isEmpty());
+        assertEquals("Parent", result.getFirst().getName());
+        assertNotNull(result.getFirst().getChildren());
+        assertTrue(result.getFirst().getChildren().isEmpty());
+    }
+
+    @Test
+    void buildMenuAndPermissionTree_ExplicitEmptyChildren() throws Exception {
+        Menu menu = mock(Menu.class);
+        when(menu.getId()).thenReturn(1L);
+        when(menu.getName()).thenReturn("Menu");
+        when(menu.getPath()).thenReturn("/menu");
+        when(menu.getPermissions()).thenReturn(Collections.emptySet());
+
+        when(menuRepository.findAll()).thenReturn(List.of(menu));
+
+        List<MenuOptionDTO> result = ScopedValue.where(TenantContextHolder.TENANT_ID, Const.SUPER_TENANT_ID).call(() -> {
+            List<MenuOptionDTO> flatList = new ArrayList<>();
+            MenuOptionDTO dto = new MenuOptionDTO();
+            dto.setId(1L);
+            dto.setPath("/menu");
+            dto.setChildren(new ArrayList<>());
+            flatList.add(dto);
+            
+            try {
+                java.lang.reflect.Method method = MenuService.class.getDeclaredMethod("buildTreeFromFlatList", List.class);
+                method.setAccessible(true);
+                return (List<MenuOptionDTO>) method.invoke(menuService, flatList);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        assertEquals(1, result.size());
+        assertNotNull(result.getFirst().getChildren());
+        assertTrue(result.getFirst().getChildren().isEmpty());
     }
 }
