@@ -1,4 +1,4 @@
-package com.mok.infrastructure.common;
+package com.mok.infrastructure.repository;
 
 import com.mok.domain.common.BaseEntity;
 import io.micronaut.security.utils.SecurityService;

@@ -1,15 +1,16 @@
 # ddd-admin
-spring boot 4 spring data jpa querydsl mutil tenant
+Micronaut 4 + Spring Data JPA + QueryDSL + Multi-Tenant
 
 ## 功能
 
-- [x] 登录，
-- [x] 租户管理
-- [x] 用户管理
+- [x] 用户认证登录
+- [x] 多租户管理
+- [x] 用户管理（CRUD）
 - [x] 角色管理
 - [x] 权限配置
 - [x] 菜单配置
-- [x] 在线用户查询，踢人下线
+- [x] 在线用户查询与强制下线
+- [x] 接口限流保护（基于 Resilience4j）
 
 ## 项目结构说明
 
@@ -53,7 +54,87 @@ com.mok.ddd
 *   **web**: 接口层。负责接收 HTTP 请求，参数校验，并调用 `application` 层的服务。
 *   **application**: 应用层。负责编排 `domain` 层的领域服务和仓库，处理 DTO 与领域模型的转换，实现具体的业务用例。
 *   **domain**: 领域层。包含项目的核心业务逻辑。定义领域实体（Entity）和仓库接口（Repository），实现纯粹的领域服务。**此层不依赖任何其他层**。
-*   **infrastructure**: 基础设施层。为其他层提供技术实现，如数据库访问（JPA 实现）、缓存（Redis）、安全（Spring Security）等。
+*   **infrastructure**: 基础设施层。为其他层提供技术实现，如数据库访问（JPA 实现）、缓存（Redis）、安全（Spring Security）、限流等。
+
+## 接口限流功能
+
+项目集成了基于 **Resilience4j** 的灵活限流保护，支持根据请求头动态选择限流策略。
+
+### 限流配置
+
+在 `application.yml` 中配置了多种限流策略和路径映射：
+
+```yaml
+resilience4j:
+  ratelimiter:
+    instances:
+      # 默认限流：适用于大部分 API 请求，30 req/s
+      default:
+        limitForPeriod: 30
+        limitRefreshPeriod: 1s
+        timeoutDuration: 0
+      # 高频限流：适用于特殊高并发场景，如秒杀，300 req/s
+      high:
+        limitForPeriod: 300
+        limitRefreshPeriod: 1s
+        timeoutDuration: 0
+      # 敏感操作限流：适用于写操作，如创建用户，10 req/s
+      sensitive:
+        limitForPeriod: 10
+        limitRefreshPeriod: 1s
+        timeoutDuration: 0
+
+# 路径映射配置（后台配置，无需前端参与）
+rate-limit:
+  mappings:
+    # 高频接口，如秒杀
+    "/api/seckill/**": "high"
+    # 敏感写操作：路径:方法 格式
+    "/api/users:post": "sensitive"
+```
+
+### 限流规则
+
+通过配置文件中的路径映射自动选择限流策略，无需前端设置请求头：
+
+| 路径模式 | 限流器 | 限制频率 | 说明 |
+|---------|--------|----------|------|
+| 默认所有路径 | default | 30 req/s | 普通 API 请求 |
+| `/api/seckill/**` | high | 300 req/s | 高并发场景，如秒杀 |
+| `/api/users:post` | sensitive | 10 req/s | 创建用户等写操作 |
+
+### 使用方式
+
+**完全后台配置**：开发者在 `application.yml` 中配置路径映射，前端无需任何特殊处理。
+
+**扩展配置**：
+- 支持路径通配符：`/api/seckill/**`
+- 支持方法指定：`/api/users:post`
+- 易于维护：修改配置即可调整限流策略
+
+### 响应行为
+
+- **正常请求**：返回 200 OK
+- **超出限制**：返回 429 TOO_MANY_REQUESTS
+
+### 使用方式
+
+**无需注解**：限流通过 `RateLimitFilter` 自动应用，根据请求特征动态选择限流策略。
+
+**响应行为**：
+- 正常请求：返回 200 OK
+- 超出限制：返回 429 TOO_MANY_REQUESTS
+
+**测试**：
+- 运行 `RateLimitFilterTest` 验证限流逻辑
+- 运行 `UserControllerRateLimitTest` 验证端到端限流功能
+
+### 为什么这样设计
+
+1. **自动应用**：无需在 Controller 上添加注解，减少代码侵入
+2. **基于路径和方法**：根据业务场景智能选择限流级别
+3. **保护写操作**：对创建等敏感操作设置更严格限制
+4. **可扩展**：可通过配置轻松调整限流策略
 
 ## 后续计划
 

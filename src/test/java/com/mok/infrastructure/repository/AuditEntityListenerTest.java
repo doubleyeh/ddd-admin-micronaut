@@ -1,13 +1,13 @@
-package com.mok.infrastructure.common;
+package com.mok.infrastructure.repository;
 
 import com.mok.domain.common.BaseEntity;
+
 import io.micronaut.security.utils.SecurityService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class AuditEntityListenerTest {

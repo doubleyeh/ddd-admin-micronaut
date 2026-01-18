@@ -1,8 +1,9 @@
 package com.mok.domain.sys.model;
 
 import com.mok.domain.common.TenantBaseEntity;
-import com.mok.infrastructure.common.AuditEntityListener;
 import com.mok.infrastructure.common.Const;
+import com.mok.infrastructure.repository.AuditEntityListener;
+
 import io.micronaut.core.annotation.Introspected;
 import jakarta.persistence.*;
 import lombok.*;

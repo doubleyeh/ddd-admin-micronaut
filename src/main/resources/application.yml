@@ -22,6 +22,32 @@ micronaut:
       multipart:
         max-file-size: 10MB
         max-request-size: 10MB
+resilience4j:
+  ratelimiter:
+    instances:
+      # 默认限流配置：适用于大部分 API 请求，30 req/s
+      default:
+        limitForPeriod: 30  # 刷新周期内允许的请求数量
+        limitRefreshPeriod: 1s  # 刷新周期，权限在此周期内恢复
+        timeoutDuration: 0  # 等待权限的超时时间，0 表示不等待立即返回
+      # 高频限流配置：适用于特殊高并发场景，如秒杀，300 req/s
+      high:
+        limitForPeriod: 300  # 刷新周期内允许的请求数量
+        limitRefreshPeriod: 1s  # 刷新周期
+        timeoutDuration: 0  # 不等待立即返回
+      # 敏感操作限流配置：适用于写操作，如创建用户，10 req/s
+      sensitive:
+        limitForPeriod: 10  # 刷新周期内允许的请求数量
+        limitRefreshPeriod: 1s  # 刷新周期
+        timeoutDuration: 0  # 不等待立即返回
+
+# 自定义限流映射配置
+rate-limit:
+  mappings:
+    # 高频接口，如秒杀
+    "/api/seckill/**": "high"
+    # 敏感写操作
+    "/api/users:post": "sensitive"
 
 datasources:
   default:
@@ -46,13 +72,6 @@ jpa:
 # Redis Configuration
 redis:
   uri: ${REDIS_URL:`redis://localhost:6379/0`}
-
-# Rate Limiter Configuration
-rate:
-  limit:
-    enabled: true
-    time: 1 # seconds
-    count: 30 # requests
 
 # File Storage Configuration
 file:

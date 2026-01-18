@@ -28,3 +28,19 @@ jpa:
           auto: create-drop
         show_sql: true
         format_sql: true
+
+resilience4j:
+  ratelimiter:
+    instances:
+      default:
+        limitForPeriod: 30
+        limitRefreshPeriod: 1s
+        timeoutDuration: 0
+      high:
+        limitForPeriod: 300
+        limitRefreshPeriod: 1s
+        timeoutDuration: 0
+      sensitive:
+        limitForPeriod: 10
+        limitRefreshPeriod: 1s
+        timeoutDuration: 0
