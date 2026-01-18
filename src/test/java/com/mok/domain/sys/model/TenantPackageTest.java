@@ -89,12 +89,40 @@ class TenantPackageTest {
         }
 
         @Test
+        void changeMenus_WithNull_ShouldClearMenus() {
+            TenantPackage pkg = createTestPackage("Test", Const.TenantPackageState.NORMAL);
+            // First add some menus
+            Set<Menu> initialMenus = new HashSet<>();
+            initialMenus.add(new Menu());
+            pkg.changeMenus(initialMenus);
+            assertEquals(1, pkg.getMenus().size());
+
+            // Then set to null
+            pkg.changeMenus(null);
+            assertEquals(0, pkg.getMenus().size());
+        }
+
+        @Test
         void changePermissions_ShouldUpdatePermissions() {
             TenantPackage pkg = createTestPackage("Test", Const.TenantPackageState.NORMAL);
             Set<Permission> permissions = new HashSet<>();
             permissions.add(new Permission());
             pkg.changePermissions(permissions);
             assertEquals(1, pkg.getPermissions().size());
+        }
+
+        @Test
+        void changePermissions_WithNull_ShouldClearPermissions() {
+            TenantPackage pkg = createTestPackage("Test", Const.TenantPackageState.NORMAL);
+            // First add some permissions
+            Set<Permission> initialPermissions = new HashSet<>();
+            initialPermissions.add(new Permission());
+            pkg.changePermissions(initialPermissions);
+            assertEquals(1, pkg.getPermissions().size());
+
+            // Then set to null
+            pkg.changePermissions(null);
+            assertEquals(0, pkg.getPermissions().size());
         }
     }
 }

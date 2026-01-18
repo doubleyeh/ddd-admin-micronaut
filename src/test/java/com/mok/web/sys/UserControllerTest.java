@@ -209,4 +209,40 @@ class UserControllerTest {
 
         verify(userService, never()).deleteById(anyLong());
     }
+
+    @Test
+    void updateState_GetUserIdNull() {
+        Long id = 1L;
+        Integer state = 0;
+        UserDTO updatedDto = new UserDTO();
+        updatedDto.setId(id);
+        updatedDto.setState(state);
+
+        tenantContextHolderMock.when(TenantContextHolder::getUserId).thenReturn(null);
+        when(userService.updateUserState(id, state)).thenReturn(updatedDto);
+
+        RestResponse<UserDTO> response = userController.updateState(id, state);
+
+        assertNotNull(response);
+        assertEquals(200, response.getCode());
+        assertTrue(response.isState());
+        assertEquals(updatedDto, response.getData());
+
+        verify(userService).updateUserState(id, state);
+    }
+
+    @Test
+    void deleteById_GetUserIdNull() {
+        Long id = 1L;
+        tenantContextHolderMock.when(TenantContextHolder::getUserId).thenReturn(null);
+        doNothing().when(userService).deleteById(id);
+
+        RestResponse<Void> response = userController.deleteById(id);
+
+        assertNotNull(response);
+        assertEquals(200, response.getCode());
+        assertTrue(response.isState());
+
+        verify(userService).deleteById(id);
+    }
 }

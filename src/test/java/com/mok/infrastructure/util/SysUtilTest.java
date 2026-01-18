@@ -128,6 +128,13 @@ public class SysUtilTest {
     }
 
     @Test
+    public void testGetBrowserWithMacOSChrome() {
+        String userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+        String browser = SysUtil.getBrowser(userAgent);
+        assertEquals("macOS - Chrome", browser);
+    }
+
+    @Test
     public void testGetBrowserWithPostman() {
         String userAgent = "PostmanRuntime/7.37.0";
         String browser = SysUtil.getBrowser(userAgent);
@@ -185,5 +192,34 @@ public class SysUtilTest {
     public void testGetBrowserWithBlank() {
         String browser = SysUtil.getBrowser("   ");
         assertEquals("Unknown", browser);
+    }
+
+    @Test
+    public void testGetBrowserWithUnknownOS() {
+        String userAgent = "Mozilla/5.0 (UnknownOS) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+        String browser = SysUtil.getBrowser(userAgent);
+        assertEquals("Unknown OS - Chrome", browser);
+    }
+
+    @Test
+    public void testGetBrowserWithOtherBrowser() {
+        String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) OtherBrowser/1.0";
+        String browser = SysUtil.getBrowser(userAgent);
+        assertEquals("Windows - Other", browser);
+    }
+
+    @Test
+    public void testGetIpAddressWithNullAddress() throws UnknownHostException {
+        HttpRequest<?> request = mock(HttpRequest.class);
+        MutableHttpHeaders headers = mock(MutableHttpHeaders.class);
+        InetSocketAddress remoteAddress = mock(InetSocketAddress.class);
+        when(remoteAddress.getAddress()).thenReturn(null);
+        when(request.getHeaders()).thenReturn(headers);
+        when(headers.get("X-Forwarded-For")).thenReturn(null);
+        when(headers.get("Proxy-Client-IP")).thenReturn(null);
+        when(headers.get("WL-Proxy-Client-IP")).thenReturn(null);
+        when(request.getRemoteAddress()).thenReturn(remoteAddress);
+        String ipAddress = SysUtil.getIpAddress(request);
+        assertNull(ipAddress);
     }
 }

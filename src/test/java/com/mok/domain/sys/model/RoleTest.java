@@ -107,12 +107,40 @@ class RoleTest {
         }
 
         @Test
+        void changePermissions_WithNull_ShouldClearPermissions() {
+            Role role = createTestRole("Test Role", Const.RoleState.NORMAL);
+            // First add some permissions
+            Set<Permission> initialPermissions = new HashSet<>();
+            initialPermissions.add(new Permission());
+            role.changePermissions(initialPermissions);
+            assertEquals(1, role.getPermissions().size());
+
+            // Then set to null
+            role.changePermissions(null);
+            assertEquals(0, role.getPermissions().size());
+        }
+
+        @Test
         void changeMenus_ShouldUpdateMenus() {
             Role role = createTestRole("Test Role", Const.RoleState.NORMAL);
             Set<Menu> newMenus = new HashSet<>();
             newMenus.add(new Menu());
             role.changeMenus(newMenus);
             assertEquals(1, role.getMenus().size());
+        }
+
+        @Test
+        void changeMenus_WithNull_ShouldClearMenus() {
+            Role role = createTestRole("Test Role", Const.RoleState.NORMAL);
+            // First add some menus
+            Set<Menu> initialMenus = new HashSet<>();
+            initialMenus.add(new Menu());
+            role.changeMenus(initialMenus);
+            assertEquals(1, role.getMenus().size());
+
+            // Then set to null
+            role.changeMenus(null);
+            assertEquals(0, role.getMenus().size());
         }
     }
 }

@@ -27,6 +27,27 @@ class UserTest {
     }
 
     @Test
+    @DisplayName("创建用户时用户名为空抛异常")
+    void create_WithNullUsername_ThrowsException() {
+        assertThrows(NullPointerException.class, () -> User.create(null, "password", "Test User", true));
+    }
+
+    @Test
+    @DisplayName("创建用户时密码为空抛异常")
+    void create_WithNullPassword_ThrowsException() {
+        assertThrows(NullPointerException.class, () -> User.create("testuser", null, "Test User", true));
+    }
+
+    @Test
+    @DisplayName("创建用户时昵称为null")
+    void create_WithNullNickname() {
+        User user = User.create("testuser", "password", null, false);
+
+        assertNotNull(user);
+        assertNull(user.getNickname());
+    }
+
+    @Test
     @DisplayName("分配租户ID成功")
     void assignTenant_Success() {
         User user = User.create("u", "p", "n", false);
@@ -61,6 +82,13 @@ class UserTest {
     }
 
     @Test
+    @DisplayName("修改密码时新密码为空抛异常")
+    void changePassword_WithNullNewPassword_ThrowsException() {
+        User user = User.create("u", "oldpass", "n", false);
+        assertThrows(NullPointerException.class, () -> user.changePassword(null));
+    }
+
+    @Test
     @DisplayName("禁用用户成功")
     void disable_Success() {
         User user = User.create("u", "p", "n", false);
@@ -84,7 +112,7 @@ class UserTest {
         Role r1 = mock(Role.class);
         Set<Role> roles = new HashSet<>();
         roles.add(r1);
-        
+
         user.changeRoles(roles);
         assertEquals(roles, user.getRoles());
     }

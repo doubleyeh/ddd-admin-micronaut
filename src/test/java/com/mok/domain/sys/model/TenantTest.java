@@ -61,6 +61,17 @@ class TenantTest {
         }
 
         @Test
+        void create_WithNullName_ThrowsException() {
+            TenantRepository mockRepo = mock(TenantRepository.class);
+            assertThrows(NullPointerException.class, () -> Tenant.create(null, "CP", "123", 1L, mockRepo));
+        }
+
+        @Test
+        void create_WithNullRepository_ThrowsException() {
+            assertThrows(NullPointerException.class, () -> Tenant.create("Test", "CP", "123", 1L, null));
+        }
+
+        @Test
         void create_FailsWhenPackageIdIsNull() {
             TenantRepository mockRepo = mock(TenantRepository.class);
             NullPointerException exception = assertThrows(NullPointerException.class, () -> Tenant.create("Test", "CP", "123", null, mockRepo));

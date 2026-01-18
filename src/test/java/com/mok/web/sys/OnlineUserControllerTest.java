@@ -15,6 +15,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.anyMap;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -43,6 +45,53 @@ class OnlineUserControllerTest {
         String tenantId = "tenant1";
         TenantOptionDTO tenantOption = new TenantOptionDTO(1L, tenantId, "Tenant One");
         List<TenantOptionDTO> tenantOptions = Collections.singletonList(tenantOption);
+        List<OnlineUserDTO> onlineUsers = Collections.singletonList(new OnlineUserDTO(1L, "user", tenantId, "Tenant One", Collections.emptyList()));
+
+        when(tenantService.findOptions(null)).thenReturn(tenantOptions);
+        tenantContextHolderMock.when(TenantContextHolder::getTenantId).thenReturn(tenantId);
+        tenantContextHolderMock.when(TenantContextHolder::isSuperTenant).thenReturn(false);
+        when(tokenProvider.getAllOnlineUsers(anyMap(), eq(tenantId), eq(false))).thenReturn(onlineUsers);
+
+        RestResponse<List<OnlineUserDTO>> response = onlineUserController.list();
+
+        assertNotNull(response);
+        assertEquals(200, response.getCode());
+        assertTrue(response.isState());
+        assertEquals(onlineUsers, response.getData());
+
+        verify(tenantService).findOptions(null);
+        verify(tokenProvider).getAllOnlineUsers(anyMap(), eq(tenantId), eq(false));
+    }
+
+    @Test
+    void list_SuperTenant() {
+        String tenantId = "super";
+        TenantOptionDTO tenantOption = new TenantOptionDTO(1L, "tenant1", "Tenant One");
+        List<TenantOptionDTO> tenantOptions = Collections.singletonList(tenantOption);
+        List<OnlineUserDTO> onlineUsers = Collections.singletonList(new OnlineUserDTO(1L, "user", "tenant1", "Tenant One", Collections.emptyList()));
+
+        when(tenantService.findOptions(null)).thenReturn(tenantOptions);
+        tenantContextHolderMock.when(TenantContextHolder::getTenantId).thenReturn(tenantId);
+        tenantContextHolderMock.when(TenantContextHolder::isSuperTenant).thenReturn(true);
+        when(tokenProvider.getAllOnlineUsers(anyMap(), eq(tenantId), eq(true))).thenReturn(onlineUsers);
+
+        RestResponse<List<OnlineUserDTO>> response = onlineUserController.list();
+
+        assertNotNull(response);
+        assertEquals(200, response.getCode());
+        assertTrue(response.isState());
+        assertEquals(onlineUsers, response.getData());
+
+        verify(tenantService).findOptions(null);
+        verify(tokenProvider).getAllOnlineUsers(anyMap(), eq(tenantId), eq(true));
+    }
+
+    @Test
+    void list_WithDuplicateTenantIds() {
+        String tenantId = "tenant1";
+        TenantOptionDTO tenantOption1 = new TenantOptionDTO(1L, tenantId, "Tenant One");
+        TenantOptionDTO tenantOption2 = new TenantOptionDTO(2L, tenantId, "Tenant Duplicate"); // Same tenantId
+        List<TenantOptionDTO> tenantOptions = List.of(tenantOption1, tenantOption2);
         List<OnlineUserDTO> onlineUsers = Collections.singletonList(new OnlineUserDTO(1L, "user", tenantId, "Tenant One", Collections.emptyList()));
 
         when(tenantService.findOptions(null)).thenReturn(tenantOptions);
