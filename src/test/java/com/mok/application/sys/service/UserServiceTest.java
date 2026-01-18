@@ -21,6 +21,7 @@ import com.mok.domain.sys.repository.*;
 import com.mok.infrastructure.common.Const;
 import com.mok.infrastructure.sys.security.PasswordEncoder;
 import com.mok.infrastructure.tenant.TenantContextHolder;
+import com.mok.infrastructure.util.SysUtil;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import org.junit.jupiter.api.AfterEach;
@@ -42,6 +43,7 @@ class UserServiceTest {
     private PasswordEncoder passwordEncoder;
     private UserService userService;
     private MockedStatic<TenantContextHolder> tenantContextHolderMock;
+    private MockedStatic<SysUtil> sysUtilMock;
     private MenuService menuService;
     private MenuMapper menuMapper;
     private MenuRepository menuRepository;
@@ -64,13 +66,15 @@ class UserServiceTest {
         tenantPackageRepository = mock(TenantPackageRepository.class);
 
         userService = new UserService(userRepository, roleRepository, userMapper, passwordEncoder, menuService, menuMapper, menuRepository, permissionService, tenantRepository, tenantPackageRepository);
-        
+
         tenantContextHolderMock = mockStatic(TenantContextHolder.class);
+        sysUtilMock = mockStatic(SysUtil.class);
     }
 
     @AfterEach
     void tearDown() {
         tenantContextHolderMock.close();
+        sysUtilMock.close();
     }
 
     @Test
@@ -143,9 +147,42 @@ class UserServiceTest {
         dto.setTenantId("tenant2");
 
         tenantContextHolderMock.when(TenantContextHolder::getTenantId).thenReturn("tenant1");
+        sysUtilMock.when(() -> SysUtil.isSuperTenant("tenant1")).thenReturn(false);
 
         Exception exception = assertThrows(BizException.class, () -> userService.create(dto));
         assertEquals("无权限管理其他用户", exception.getMessage());
+    }
+
+    @Test
+    void create_SuperTenantCanCreateOtherTenantUser() {
+        UserPostDTO dto = new UserPostDTO();
+        dto.setUsername("newUser");
+        dto.setPassword("password");
+        dto.setNickname("Nick");
+        dto.setTenantId("tenant2");
+        dto.setRoleIds(List.of(1L));
+
+        tenantContextHolderMock.when(TenantContextHolder::getTenantId).thenReturn("tenant1");
+        sysUtilMock.when(() -> SysUtil.isSuperTenant("tenant1")).thenReturn(true);
+        when(userRepository.findByTenantIdAndUsername("tenant2", "newUser")).thenReturn(Optional.empty());
+        when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
+
+        Role role = mock(Role.class);
+        when(role.getId()).thenReturn(1L);
+        when(roleRepository.findByIdIn(new ArrayList<>(dto.getRoleIds()))).thenReturn(Collections.singletonList(role));
+
+        userService.create(dto);
+
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userCaptor.capture());
+        User savedUser = userCaptor.getValue();
+
+        assertEquals("newUser", savedUser.getUsername());
+        assertEquals("encodedPassword", savedUser.getPassword());
+        assertEquals("Nick", savedUser.getNickname());
+        assertFalse(savedUser.getIsTenantAdmin());
+        assertEquals(Const.UserState.NORMAL, savedUser.getState());
+        assertEquals(1, savedUser.getRoles().size());
     }
     
     @Test
@@ -155,10 +192,27 @@ class UserServiceTest {
         dto.setTenantId("tenant1");
 
         tenantContextHolderMock.when(TenantContextHolder::getTenantId).thenReturn("tenant1");
+        sysUtilMock.when(() -> SysUtil.isSuperTenant("tenant1")).thenReturn(false);
         when(userRepository.findByTenantIdAndUsername("tenant1", "existingUser")).thenReturn(Optional.of(mock(User.class)));
 
         Exception exception = assertThrows(BizException.class, () -> userService.create(dto));
         assertEquals("用户名已存在", exception.getMessage());
+    }
+
+    @Test
+    void create_PasswordEncodeFails_ShouldThrowRuntimeException() {
+        UserPostDTO dto = new UserPostDTO();
+        dto.setUsername("newUser");
+        dto.setPassword("password");
+        dto.setTenantId("tenant1");
+
+        tenantContextHolderMock.when(TenantContextHolder::getTenantId).thenReturn("tenant1");
+        sysUtilMock.when(() -> SysUtil.isSuperTenant("tenant1")).thenReturn(false);
+        when(userRepository.findByTenantIdAndUsername("tenant1", "newUser")).thenReturn(Optional.empty());
+        when(passwordEncoder.encode("password")).thenReturn(null);
+
+        Exception exception = assertThrows(RuntimeException.class, () -> userService.create(dto));
+        assertEquals("密码加密失败", exception.getMessage());
     }
 
     @Test
@@ -195,6 +249,18 @@ class UserServiceTest {
 
         Exception exception = assertThrows(BizException.class, () -> userService.createForTenant(dto));
         assertEquals("创建租户用户时，租户ID不能为空", exception.getMessage());
+    }
+
+    @Test
+    void createForTenant_UsernameExists_ShouldThrowBizException() {
+        UserPostDTO dto = new UserPostDTO();
+        dto.setUsername("existingUser");
+        dto.setTenantId("newTenant");
+
+        when(userRepository.findByTenantIdAndUsername("newTenant", "existingUser")).thenReturn(Optional.of(mock(User.class)));
+
+        Exception exception = assertThrows(BizException.class, () -> userService.createForTenant(dto));
+        assertEquals("用户名已存在", exception.getMessage());
     }
 
     @Test
@@ -239,29 +305,48 @@ class UserServiceTest {
         Long userId = 1L;
         String newNickname = "New Nick";
         User user = User.create("user", "pass", "old", false);
-        
+
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        
+
         userService.updateNickname(userId, newNickname);
-        
+
         verify(userRepository).save(user);
         assertEquals(newNickname, user.getNickname());
+    }
+
+    @Test
+    void updateNickname_UserNotFound_ShouldThrowNotFoundException() {
+        Long userId = 1L;
+        String newNickname = "New Nick";
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> userService.updateNickname(userId, newNickname));
     }
 
     @Test
     void updateUserState_Success() {
         Long userId = 1L;
         User user = User.create("user", "pass", "nick", false);
-        
+
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        
+
         userService.updateUserState(userId, Const.UserState.DISABLED);
         assertEquals(Const.UserState.DISABLED, user.getState());
-        
+
         userService.updateUserState(userId, Const.UserState.NORMAL);
         assertEquals(Const.UserState.NORMAL, user.getState());
-        
+
         verify(userRepository, times(2)).save(user);
+    }
+
+    @Test
+    void updateUserState_UserNotFound_ShouldThrowNotFoundException() {
+        Long userId = 1L;
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> userService.updateUserState(userId, Const.UserState.NORMAL));
     }
 
     @Test
@@ -287,6 +372,34 @@ class UserServiceTest {
     }
 
     @Test
+    void updatePassword_PasswordEncodeFails_ShouldThrowRuntimeException() {
+        Long userId = 1L;
+        UserPasswordDTO dto = new UserPasswordDTO();
+        dto.setId(userId);
+        dto.setPassword("newPassword123");
+
+        User existingUser = User.create("user", "oldEncodedPassword", "nick", false);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
+        when(passwordEncoder.encode("newPassword123")).thenReturn(null);
+
+        Exception exception = assertThrows(RuntimeException.class, () -> userService.updatePassword(dto));
+        assertEquals("密码加密失败", exception.getMessage());
+    }
+
+    @Test
+    void updatePassword_UserNotFound_ShouldThrowNotFoundException() {
+        Long userId = 1L;
+        UserPasswordDTO dto = new UserPasswordDTO();
+        dto.setId(userId);
+        dto.setPassword("newPassword123");
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> userService.updatePassword(dto));
+    }
+
+    @Test
     void deleteById_Success() {
         Long userId = 2L;
         User user = User.create("user", "pass", "nick", false);
@@ -307,6 +420,7 @@ class UserServiceTest {
         user.setTenantId(Const.SUPER_TENANT_ID);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        sysUtilMock.when(() -> SysUtil.isSuperAdmin(Const.SUPER_TENANT_ID, Const.SUPER_ADMIN_USERNAME)).thenReturn(true);
 
         Exception exception = assertThrows(BizException.class, () -> userService.deleteById(userId));
         assertEquals("用户不允许删除", exception.getMessage());
@@ -338,10 +452,21 @@ class UserServiceTest {
         String username = "user";
         User user = mock(User.class);
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
-        
-        userService.findByUsername(username);
-        
+        when(userMapper.toDto(user)).thenReturn(new UserDTO());
+
+        UserDTO result = userService.findByUsername(username);
+
         verify(userRepository).findByUsername(username);
+        verify(userMapper).toDto(user);
+        assertNotNull(result);
+    }
+
+    @Test
+    void findByUsername_NotFound() {
+        String username = "nonexistent";
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> userService.findByUsername(username));
     }
 
     @Test
@@ -350,17 +475,18 @@ class UserServiceTest {
         User user = mock(User.class);
         when(user.getTenantId()).thenReturn(Const.SUPER_TENANT_ID);
         when(user.getUsername()).thenReturn(username);
-        
+
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
-        
+        sysUtilMock.when(() -> SysUtil.isSuperAdmin(Const.SUPER_TENANT_ID, username)).thenReturn(true);
+
         Menu menu = mock(Menu.class);
         when(menuRepository.findAll()).thenReturn(List.of(menu));
         when(menuMapper.toDto(menu)).thenReturn(new MenuDTO());
-        
+
         when(permissionService.getAllPermissionCodes()).thenReturn(Set.of("perm1"));
-        
+
         AccountInfoDTO result = userService.findAccountInfoByUsername(username);
-        
+
         assertNotNull(result);
         assertTrue(result.getPermissions().contains(Const.SUPER_ADMIN_ROLE_CODE));
         assertTrue(result.getPermissions().contains("perm1"));
@@ -452,23 +578,53 @@ class UserServiceTest {
         when(user.getTenantId()).thenReturn(tenantId);
         when(user.getUsername()).thenReturn(username);
         when(user.getIsTenantAdmin()).thenReturn(false);
-        
+
         Role role = mock(Role.class);
         Menu menu = mock(Menu.class);
         Permission perm = mock(Permission.class);
         when(perm.getCode()).thenReturn("user:perm");
-        
+
         when(role.getMenus()).thenReturn(Set.of(menu));
         when(role.getPermissions()).thenReturn(Set.of(perm));
         when(user.getRoles()).thenReturn(Set.of(role));
-        
+
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
         when(menuMapper.toDtoList(any())).thenReturn(List.of(new MenuDTO()));
-        
+
         AccountInfoDTO result = userService.findAccountInfoByUsername(username);
-        
+
         assertNotNull(result);
         assertTrue(result.getPermissions().contains("user:perm"));
+    }
+
+    @Test
+    void findAccountInfoByUsername_NormalUser_EmptyRoles() {
+        String username = "user";
+        String tenantId = "tenant1";
+        User user = mock(User.class);
+        when(user.getTenantId()).thenReturn(tenantId);
+        when(user.getUsername()).thenReturn(username);
+        when(user.getIsTenantAdmin()).thenReturn(false);
+
+        when(user.getRoles()).thenReturn(Set.of());
+
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(menuMapper.toDtoList(any())).thenReturn(List.of());
+
+        AccountInfoDTO result = userService.findAccountInfoByUsername(username);
+
+        assertNotNull(result);
+        assertTrue(result.getPermissions().isEmpty());
+        assertTrue(result.getMenus().isEmpty());
+    }
+
+    @Test
+    void findAccountInfoByUsername_UserNotFound_ShouldThrowNotFoundException() {
+        String username = "nonexistent";
+
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> userService.findAccountInfoByUsername(username));
     }
 
     @Test
