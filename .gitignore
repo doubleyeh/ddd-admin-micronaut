@@ -34,6 +34,7 @@ target
 .classpath
 .project
 /.settings
+/**/.settings
 /.zed
 .factorypath
 /.vscode

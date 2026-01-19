@@ -1,0 +1,52 @@
+package com.mok.common.domain;
+
+import com.mok.common.infrastructure.tenant.TenantContextHolder;
+import io.micronaut.core.annotation.Introspected;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+
+@MappedSuperclass
+@Getter
+@Setter
+@Introspected
+public abstract class BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "create_by")
+    private String createBy;
+
+    @Column(name = "update_by")
+    private String updateBy;
+
+    @Column(name = "create_time", updatable = false)
+    private LocalDateTime createTime;
+
+    @Column(name = "update_time")
+    private LocalDateTime updateTime;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createTime = LocalDateTime.now();
+        this.updateTime = LocalDateTime.now();
+        if (this.createBy == null) {
+            this.createBy = TenantContextHolder.getUsername();
+        }
+        if (this.updateBy == null) {
+            this.updateBy = TenantContextHolder.getUsername();
+        }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updateTime = LocalDateTime.now();
+        if(this.updateBy == null){
+            this.updateBy = TenantContextHolder.getUsername();
+        }
+    }
+}

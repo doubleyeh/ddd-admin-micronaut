@@ -2,71 +2,48 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.mok</groupId>
-    <artifactId>ddd</artifactId>
-    <version>0.1</version>
-    <packaging>pom</packaging>
-
-    <modules>
-        <module>ddd-common</module>
-        <module>ddd-sys</module>
-        <module>startup</module>
-    </modules>
-
     <parent>
-        <groupId>io.micronaut.platform</groupId>
-        <artifactId>micronaut-parent</artifactId>
-         <version>4.10.7</version>
+        <groupId>com.mok</groupId>
+        <artifactId>ddd</artifactId>
+        <version>0.1</version>
     </parent>
+    <artifactId>startup</artifactId>
+    <packaging>jar</packaging>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>io.micronaut.platform</groupId>
-                <artifactId>micronaut-platform</artifactId>
-                <version>4.10.7</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.junit</groupId>
-                <artifactId>junit-bom</artifactId>
-                <version>5.10.3</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>com.mok</groupId>
+            <artifactId>ddd-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.mok</groupId>
+            <artifactId>ddd-sys</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-    <properties>
-        <jdk.version>25</jdk.version>
-        <release.version>25</release.version>
-        <maven.compiler.source>25</maven.compiler.source>
-        <maven.compiler.target>25</maven.compiler.target>
-        <micronaut.runtime>netty</micronaut.runtime>
-        <micronaut.aot.enabled>false</micronaut.aot.enabled>
-        <micronaut.aot.packageName>com.mok.aot.generated</micronaut.aot.packageName>
-        <micronaut.test.resources.enabled>false</micronaut.test.resources.enabled>
-        <exec.mainClass>com.mok.Application</exec.mainClass>
-        <mapstruct.version>1.6.3</mapstruct.version>
-    </properties>
-
-    <repositories>
-        <repository>
-            <id>central</id>
-            <url>https://repo.maven.apache.org/maven2</url>
-        </repository>
-    </repositories>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
             <plugin>
                 <groupId>io.micronaut.maven</groupId>
                 <artifactId>micronaut-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
+                <configuration>
+                    <aotDependencies>
+                        <dependency>
+                            <groupId>io.micronaut.security</groupId>
+                            <artifactId>micronaut-security-aot</artifactId>
+                            <version>${micronaut.security.version}</version>
+                        </dependency>
+                    </aotDependencies>
+                    <configFile>aot-${packaging}.properties</configFile>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -87,6 +64,12 @@
                             <groupId>io.micronaut.data</groupId>
                             <artifactId>micronaut-data-processor</artifactId>
                             <version>${micronaut.data.version}</version>
+                            <exclusions>
+                                <exclusion>
+                                    <groupId>io.micronaut</groupId>
+                                    <artifactId>micronaut-inject</artifactId>
+                                </exclusion>
+                            </exclusions>
                         </path>
                         <path>
                             <groupId>io.micronaut</groupId>
@@ -102,20 +85,31 @@
                             <groupId>io.micronaut.security</groupId>
                             <artifactId>micronaut-security-annotations</artifactId>
                             <version>${micronaut.security.version}</version>
+                            <exclusions>
+                                <exclusion>
+                                    <groupId>io.micronaut</groupId>
+                                    <artifactId>micronaut-inject</artifactId>
+                                </exclusion>
+                            </exclusions>
                         </path>
                         <path>
                             <groupId>io.micronaut.serde</groupId>
                             <artifactId>micronaut-serde-processor</artifactId>
                             <version>${micronaut.serialization.version}</version>
+                            <exclusions>
+                                <exclusion>
+                                    <groupId>io.micronaut</groupId>
+                                    <artifactId>micronaut-inject</artifactId>
+                                </exclusion>
+                            </exclusions>
                         </path>
                     </annotationProcessorPaths>
                     <compilerArgs>
                         <arg>-Amicronaut.processing.group=com.mok</arg>
-                        <arg>-Amicronaut.processing.module=ddd</arg>
+                        <arg>-Amicronaut.processing.module=ddd-startup</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -144,5 +138,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
