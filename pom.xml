@@ -49,6 +49,10 @@
         <micronaut.test.resources.enabled>false</micronaut.test.resources.enabled>
         <exec.mainClass>com.mok.Application</exec.mainClass>
         <mapstruct.version>1.6.3</mapstruct.version>
+        <micronaut.core.version>4.10.7</micronaut.core.version>
+        <micronaut.data.version>4.10.7</micronaut.data.version>
+        <micronaut.security.version>4.10.7</micronaut.security.version>
+        <micronaut.serialization.version>4.10.7</micronaut.serialization.version>
     </properties>
 
     <repositories>
