@@ -12,6 +12,10 @@ public interface Const {
 
     String SUPER_ADMIN_ROLE_CODE = "SUPER_ADMIN";
 
+    String TENANT_ID = "TENANT_ID";
+    String USERNAME = "USERNAME";
+    String USER_ID = "USER_ID";
+
     class CacheKey {
         public static final String MENU_TREE = "sys:menu:tree";
         public static final String ROLE_PERMS = "sys:role:perms";

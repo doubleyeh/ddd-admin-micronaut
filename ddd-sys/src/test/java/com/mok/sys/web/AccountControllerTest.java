@@ -7,6 +7,7 @@ import com.mok.sys.application.dto.user.UserPasswordDTO;
 import com.mok.sys.application.service.UserService;
 import com.mok.common.infrastructure.tenant.TenantContextHolder;
 import com.mok.common.web.RestResponse;
+import io.micronaut.security.authentication.Authentication;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,11 +49,12 @@ class AccountControllerTest {
         userDTO.setId(userId);
         userDTO.setUsername(username);
 
-        tenantContextHolderMock.when(TenantContextHolder::getUsername).thenReturn(username);
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getName()).thenReturn(username);
         when(userService.findByUsername(username)).thenReturn(userDTO);
         doNothing().when(userService).updatePassword(any(UserPasswordDTO.class));
 
-        RestResponse<Boolean> response = accountController.changeMyPassword(dto);
+        RestResponse<Boolean> response = accountController.changeMyPassword(authentication, dto);
 
         assertNotNull(response);
         assertEquals(200, response.getCode());
@@ -68,15 +70,20 @@ class AccountControllerTest {
     @Test
     void getMyInfo() {
         String username = "testUser";
+
         AccountInfoDTO accountInfoDTO = new AccountInfoDTO();
         UserDTO userDTO = new UserDTO();
         userDTO.setUsername(username);
         accountInfoDTO.setUser(userDTO);
 
-        tenantContextHolderMock.when(TenantContextHolder::getUsername).thenReturn(username);
-        when(userService.findAccountInfoByUsername(username)).thenReturn(accountInfoDTO);
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getName()).thenReturn(username);
 
-        RestResponse<AccountInfoDTO> response = accountController.getMyInfo();
+        when(userService.findAccountInfoByUsername(username))
+                .thenReturn(accountInfoDTO);
+
+        RestResponse<AccountInfoDTO> response =
+                accountController.getMyInfo(authentication);
 
         assertNotNull(response);
         assertEquals(200, response.getCode());
@@ -85,6 +92,7 @@ class AccountControllerTest {
 
         verify(userService).findAccountInfoByUsername(username);
     }
+
 
     @Test
     void updateNickname() {
@@ -99,11 +107,12 @@ class AccountControllerTest {
         userDTO.setId(userId);
         userDTO.setUsername(username);
 
-        tenantContextHolderMock.when(TenantContextHolder::getUsername).thenReturn(username);
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getName()).thenReturn(username);
         when(userService.findByUsername(username)).thenReturn(userDTO);
         doNothing().when(userService).updateNickname(userId, newNickname);
 
-        RestResponse<Boolean> response = accountController.updateNickname(dto);
+        RestResponse<Boolean> response = accountController.updateNickname(authentication, dto);
 
         assertNotNull(response);
         assertEquals(200, response.getCode());

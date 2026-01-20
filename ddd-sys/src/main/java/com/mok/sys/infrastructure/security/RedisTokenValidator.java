@@ -1,5 +1,7 @@
 package com.mok.sys.infrastructure.security;
 
+import com.mok.common.infrastructure.security.CustomUserDetail;
+import com.mok.common.infrastructure.security.TokenSessionDTO;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.token.validator.TokenValidator;
@@ -23,9 +25,9 @@ public class RedisTokenValidator implements TokenValidator<HttpRequest<?>> {
     @Override
     public Publisher<Authentication> validateToken(String token, HttpRequest<?> request) {
         return Mono.fromCallable(() -> {
-            com.mok.common.infrastructure.security.TokenSessionDTO session = tokenProvider.getSession(token);
+            TokenSessionDTO session = tokenProvider.getSession(token);
             if (session != null && session.getPrincipal() != null) {
-                com.mok.common.infrastructure.security.CustomUserDetail user = session.getPrincipal();
+                CustomUserDetail user = session.getPrincipal();
                 return Authentication.build(
                         user.username(),
                         Objects.isNull(user.roleIds()) ? Collections.emptyList() : user.roleIds().stream().map(String::valueOf).toList(),

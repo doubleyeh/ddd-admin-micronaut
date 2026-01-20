@@ -1,6 +1,7 @@
 package com.mok.common.infrastructure.tenant;
 
 import com.mok.common.application.exception.BizException;
+import com.mok.common.infrastructure.common.Const;
 import com.mok.common.infrastructure.security.TokenProvider;
 import com.mok.common.infrastructure.security.TokenSessionDTO;
 import io.micronaut.core.annotation.Order;
@@ -71,11 +72,18 @@ public class TenantContextPopulatingFilter implements HttpServerFilter {
         String finalUsername = username != null ? username : "";
         Long finalUserId = userId != null ? userId : 0L;
 
-        return Mono.deferContextual(ctx ->
+        return Mono.defer(() ->
+                Mono.from(chain.proceed(request))
+                        .contextWrite(ctx -> ctx
+                                .put(Const.TENANT_ID, finalTenantId)
+                                .put(Const.USERNAME, finalUsername)
+                                .put(Const.USER_ID, finalUserId)
+                        )
+        ).transform(mono ->
                 ScopedValue.where(TenantContextHolder.TENANT_ID, finalTenantId)
                         .where(TenantContextHolder.USERNAME, finalUsername)
                         .where(TenantContextHolder.USER_ID, finalUserId)
-                        .call(() -> Mono.from(chain.proceed(request)))
+                        .call(() -> mono)
         );
     }
 }

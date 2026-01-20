@@ -13,6 +13,7 @@ import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Put;
+import io.micronaut.security.authentication.Authentication;
 import io.micronaut.serde.annotation.Serdeable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -30,8 +31,8 @@ public class AccountController {
 
     @Put("/password")
     @OperLogRecord(title = "个人信息", businessType = BusinessType.UPDATE)
-    public RestResponse<Boolean> changeMyPassword(@Body @Valid SelfPasswordUpdateDTO dto) {
-        UserDTO user = userService.findByUsername(TenantContextHolder.getUsername());
+    public RestResponse<Boolean> changeMyPassword(Authentication authentication, @Body @Valid SelfPasswordUpdateDTO dto) {
+        UserDTO user = userService.findByUsername(authentication.getName());
 
         UserPasswordDTO passwordDTO = new UserPasswordDTO();
         passwordDTO.setId(user.getId());
@@ -41,14 +42,14 @@ public class AccountController {
     }
 
     @Get("/info")
-    public RestResponse<AccountInfoDTO> getMyInfo() {
-        AccountInfoDTO user = userService.findAccountInfoByUsername(TenantContextHolder.getUsername());
+    public RestResponse<AccountInfoDTO> getMyInfo(Authentication authentication) {
+        AccountInfoDTO user = userService.findAccountInfoByUsername(authentication.getName());
         return RestResponse.success(user);
     }
 
     @Put("/nickname")
-    public RestResponse<Boolean> updateNickname(@Body @Valid NicknameUpdateDTO dto) {
-        String username = TenantContextHolder.getUsername();
+    public RestResponse<Boolean> updateNickname(Authentication authentication, @Body @Valid NicknameUpdateDTO dto) {
+        String username = authentication.getName();
         UserDTO user = userService.findByUsername(username);
         userService.updateNickname(user.getId(), dto.getNickname());
         return RestResponse.success(true);
