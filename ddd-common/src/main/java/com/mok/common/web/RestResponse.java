@@ -3,10 +3,12 @@ package com.mok.common.web;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import io.micronaut.serde.annotation.Serdeable;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Serdeable
 public class RestResponse<T> {
 
     private int code;

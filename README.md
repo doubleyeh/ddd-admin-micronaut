@@ -1,5 +1,5 @@
-# ddd-admin
-Micronaut 4 + Spring Data JPA + QueryDSL + Multi-Tenant
+# ddd-admin-micronaut
+Micronaut 4 + Micronaut Data + Multi-Tenant
 
 ## 功能
 
@@ -14,10 +14,21 @@ Micronaut 4 + Spring Data JPA + QueryDSL + Multi-Tenant
 
 ## 项目结构说明
 
-项目采用 DDD（领域驱动设计）分层架构，并结合模块化思想对包结构进行了划分，以实现高内聚、低耦合。
+项目采用多模块架构和DDD（领域驱动设计）分层架构，结合模块化思想对包结构进行了划分，以实现高内聚、低耦合。
+
+### 模块结构
 
 ```
-com.mok.ddd
+ddd-admin-micronaut
+├── ddd-common          // 公共模块：基础设施、领域基础类、多租户实现等
+├── ddd-sys             // 系统管理模块：用户、角色、权限、菜单等业务功能
+└── startup             // 启动模块：应用入口和配置文件
+```
+
+### 包结构
+
+```
+com.mok.ddd (各模块内的包结构)
 ├── application         // 应用层: 负责业务流程编排、DTO转换
 │   ├── common          // 通用应用服务 (如 BaseService)
 │   └── sys             // 系统管理模块 (用户、角色、菜单等)
@@ -33,11 +44,11 @@ com.mok.ddd
 │
 ├── infrastructure      // 基础设施层: 提供通用技术能力
 │   ├── common          // 通用基础设施组件 (如 AOP 切面)
-│   ├── config          // - Spring Boot 配置类
+│   ├── config          // - Micronaut 配置类
 │   ├── file            // - 文件服务实现 (Local)
 │   ├── limiter         // - 接口限流实现
 │   ├── repository      // - 仓库通用实现 (CustomRepositoryImpl)
-│   ├── security        // - Spring Security 通用配置
+│   ├── security        // - Micronaut Security 通用配置
 │   ├── sys             // 系统管理模块相关基础设施
 │   │   └── security    //   - CustomUserDetailsService
 │   └── tenant          // - 多租户核心实现
@@ -46,7 +57,7 @@ com.mok.ddd
 │   ├── common          // 通用 Web 组件 (如全局异常处理)
 │   └── sys             // 系统管理模块 Controller
 │
-└── Application.java    // Spring Boot 启动类
+└── Application.java    // Micronaut 启动类
 ```
 
 ### 分层职责
@@ -54,7 +65,7 @@ com.mok.ddd
 *   **web**: 接口层。负责接收 HTTP 请求，参数校验，并调用 `application` 层的服务。
 *   **application**: 应用层。负责编排 `domain` 层的领域服务和仓库，处理 DTO 与领域模型的转换，实现具体的业务用例。
 *   **domain**: 领域层。包含项目的核心业务逻辑。定义领域实体（Entity）和仓库接口（Repository），实现纯粹的领域服务。**此层不依赖任何其他层**。
-*   **infrastructure**: 基础设施层。为其他层提供技术实现，如数据库访问（JPA 实现）、缓存（Redis）、安全（Spring Security）、限流等。
+*   **infrastructure**: 基础设施层。为其他层提供技术实现，如数据库访问（JPA 实现）、缓存（Redis）、安全（Micronaut Security）、限流等。
 
 ## 接口限流功能
 
@@ -151,13 +162,13 @@ rate-limit:
 
 4.  **文件服务**
     - [x] 封装统一文件服务接口。
-    - [ ] 支持本地存储、RustFS等多种存储策略。
+    - [x] 支持本地存储
+    - [ ] RustFS等多种存储策略。
 
 5.  **定时任务**
-    - [ ] 集成 Quartz 或 Spring Task，实现任务的可视化管理（暂停、恢复、立即执行）。
+    - [ ] 集成 Quartz，实现任务的可视化管理（暂停、恢复、立即执行）。
 
 6.  **系统监控**
-    - [ ] 集成 Spring Boot Admin 进行应用监控。
     - [ ] 接入 Prometheus + Grafana 进行性能指标监控。
 
 7.  **消息通知**
