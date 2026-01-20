@@ -38,7 +38,7 @@ class JwtTokenProviderTest {
 
         String username = "testuser";
         String tenantId = "tenant1";
-        CustomUserDetail principal = mock(CustomUserDetail.class);
+        com.mok.common.infrastructure.security.CustomUserDetail principal = mock(com.mok.common.infrastructure.security.CustomUserDetail.class);
         String ip = "127.0.0.1";
         String browser = "Chrome";
 
@@ -63,7 +63,7 @@ class JwtTokenProviderTest {
 
         String username = "testuser";
         String tenantId = "tenant1";
-        CustomUserDetail principal = mock(CustomUserDetail.class);
+        com.mok.common.infrastructure.security.CustomUserDetail principal = mock(com.mok.common.infrastructure.security.CustomUserDetail.class);
         String ip = "127.0.0.1";
         String browser = "Chrome";
 
@@ -83,12 +83,12 @@ class JwtTokenProviderTest {
     void getSession_ValidToken_ReturnsSession() throws Exception {
         String token = "testToken";
         String sessionJson = "{\"token\":\"testToken\",\"username\":\"user\",\"tenantId\":\"tenant1\",\"ip\":\"127.0.0.1\",\"browser\":\"Chrome\",\"loginTime\":1234567890}";
-        TokenSessionDTO expectedSession = new TokenSessionDTO("user", "tenant1", null, "127.0.0.1", "Chrome", 1234567890);
+        com.mok.common.infrastructure.security.TokenSessionDTO expectedSession = new com.mok.common.infrastructure.security.TokenSessionDTO("user", "tenant1", null, "127.0.0.1", "Chrome", 1234567890);
 
         when(redisCommands.get(anyString())).thenReturn(sessionJson);
         when(redisCommands.ttl(anyString())).thenReturn(700L); // > 600, no refresh
 
-        TokenSessionDTO session = jwtTokenProvider.getSession(token);
+        com.mok.common.infrastructure.security.TokenSessionDTO session = jwtTokenProvider.getSession(token);
 
         assertNotNull(session);
         assertEquals("user", session.getUsername());
@@ -100,12 +100,12 @@ class JwtTokenProviderTest {
     void getSession_TokenNeedsRefresh_Refreshes() throws Exception {
         String token = "testToken";
         String sessionJson = "{\"token\":\"testToken\",\"username\":\"user\",\"tenantId\":\"tenant1\",\"ip\":\"127.0.0.1\",\"browser\":\"Chrome\",\"loginTime\":1234567890}";
-        TokenSessionDTO expectedSession = new TokenSessionDTO("user", "tenant1", null, "127.0.0.1", "Chrome", 1234567890);
+        com.mok.common.infrastructure.security.TokenSessionDTO expectedSession = new com.mok.common.infrastructure.security.TokenSessionDTO("user", "tenant1", null, "127.0.0.1", "Chrome", 1234567890);
 
         when(redisCommands.get(anyString())).thenReturn(sessionJson);
         when(redisCommands.ttl(anyString())).thenReturn(300L); // < 600, refresh
 
-        TokenSessionDTO session = jwtTokenProvider.getSession(token);
+        com.mok.common.infrastructure.security.TokenSessionDTO session = jwtTokenProvider.getSession(token);
 
         assertNotNull(session);
         assertEquals("user", session.getUsername());
@@ -116,12 +116,12 @@ class JwtTokenProviderTest {
     void getSession_TokenExpired_NoRefresh() throws Exception {
         String token = "testToken";
         String sessionJson = "{\"token\":\"testToken\",\"username\":\"user\",\"tenantId\":\"tenant1\",\"ip\":\"127.0.0.1\",\"browser\":\"Chrome\",\"loginTime\":1234567890}";
-        TokenSessionDTO expectedSession = new TokenSessionDTO("user", "tenant1", null, "127.0.0.1", "Chrome", 1234567890);
+        com.mok.common.infrastructure.security.TokenSessionDTO expectedSession = new com.mok.common.infrastructure.security.TokenSessionDTO("user", "tenant1", null, "127.0.0.1", "Chrome", 1234567890);
 
         when(redisCommands.get(anyString())).thenReturn(sessionJson);
         when(redisCommands.ttl(anyString())).thenReturn(-1L); // Expired
 
-        TokenSessionDTO session = jwtTokenProvider.getSession(token);
+        com.mok.common.infrastructure.security.TokenSessionDTO session = jwtTokenProvider.getSession(token);
 
         assertNotNull(session);
         assertEquals("user", session.getUsername());
@@ -132,12 +132,12 @@ class JwtTokenProviderTest {
     void getSession_TokenNotExpired_NoRefresh() throws Exception {
         String token = "testToken";
         String sessionJson = "{\"token\":\"testToken\",\"username\":\"user\",\"tenantId\":\"tenant1\",\"ip\":\"127.0.0.1\",\"browser\":\"Chrome\",\"loginTime\":1234567890}";
-        TokenSessionDTO expectedSession = new TokenSessionDTO("user", "tenant1", null, "127.0.0.1", "Chrome", 1234567890);
+        com.mok.common.infrastructure.security.TokenSessionDTO expectedSession = new com.mok.common.infrastructure.security.TokenSessionDTO("user", "tenant1", null, "127.0.0.1", "Chrome", 1234567890);
 
         when(redisCommands.get(anyString())).thenReturn(sessionJson);
         when(redisCommands.ttl(anyString())).thenReturn(700L); // > 600, no refresh
 
-        TokenSessionDTO session = jwtTokenProvider.getSession(token);
+        com.mok.common.infrastructure.security.TokenSessionDTO session = jwtTokenProvider.getSession(token);
 
         assertNotNull(session);
         assertEquals("user", session.getUsername());
@@ -151,7 +151,7 @@ class JwtTokenProviderTest {
 
         when(redisCommands.get(anyString())).thenReturn(invalidJson);
 
-        TokenSessionDTO session = jwtTokenProvider.getSession(token);
+        com.mok.common.infrastructure.security.TokenSessionDTO session = jwtTokenProvider.getSession(token);
 
         assertNull(session);
     }
@@ -162,7 +162,7 @@ class JwtTokenProviderTest {
 
         when(redisCommands.get(anyString())).thenReturn(null);
 
-        TokenSessionDTO session = jwtTokenProvider.getSession(token);
+        com.mok.common.infrastructure.security.TokenSessionDTO session = jwtTokenProvider.getSession(token);
 
         assertNull(session);
     }
@@ -226,7 +226,7 @@ class JwtTokenProviderTest {
         }
 
         String token = "testToken";
-        TokenSessionDTO session = new TokenSessionDTO("user", "tenant1", null, "127.0.0.1", "Chrome", 1234567890);
+        com.mok.common.infrastructure.security.TokenSessionDTO session = new com.mok.common.infrastructure.security.TokenSessionDTO("user", "tenant1", null, "127.0.0.1", "Chrome", 1234567890);
 
         when(redisCommands.get(anyString())).thenReturn("{\"username\":\"user\",\"tenantId\":\"tenant1\"}");
 
@@ -239,7 +239,7 @@ class JwtTokenProviderTest {
     @Test
     void removeToken_NotAllowMultiDevice_RemovesKey() {
         String token = "testToken";
-        TokenSessionDTO session = new TokenSessionDTO("user", "tenant1", null, "127.0.0.1", "Chrome", 1234567890);
+        com.mok.common.infrastructure.security.TokenSessionDTO session = new com.mok.common.infrastructure.security.TokenSessionDTO("user", "tenant1", null, "127.0.0.1", "Chrome", 1234567890);
 
         when(redisCommands.get(anyString())).thenReturn("{\"username\":\"user\",\"tenantId\":\"tenant1\"}");
 

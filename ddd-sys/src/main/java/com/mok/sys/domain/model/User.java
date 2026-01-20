@@ -7,6 +7,7 @@ import com.mok.common.infrastructure.repository.AuditEntityListener;
 import io.micronaut.core.annotation.Introspected;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.Set;
 
@@ -32,6 +33,7 @@ public class User extends TenantBaseEntity {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
+    @BatchSize(size = 20)
     private Set<Role> roles;
 
     public static User create(@NonNull String username, @NonNull String password, String nickname, boolean isTenantAdmin) {

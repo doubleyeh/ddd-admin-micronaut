@@ -3,7 +3,7 @@ package com.mok.sys.web;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mok.sys.application.dto.auth.LoginRequest;
 import com.mok.sys.application.dto.auth.LoginResDTO;
-import com.mok.sys.infrastructure.security.CustomUserDetail;
+import com.mok.common.infrastructure.security.CustomUserDetail;
 import com.mok.sys.infrastructure.security.JwtTokenProvider;
 import com.mok.common.web.RestResponse;
 import io.micronaut.http.HttpHeaders;

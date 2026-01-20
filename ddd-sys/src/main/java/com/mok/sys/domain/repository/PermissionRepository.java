@@ -4,6 +4,7 @@ package com.mok.sys.domain.repository;
 import com.mok.sys.domain.model.Permission;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.data.annotation.Query;
+import io.micronaut.data.annotation.Repository;
 import io.micronaut.data.jpa.repository.JpaRepository;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
@@ -15,6 +16,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+@Repository
 public interface PermissionRepository extends PageableRepository<Permission, Long>, JpaRepository<Permission, Long> {
 
     @Transactional

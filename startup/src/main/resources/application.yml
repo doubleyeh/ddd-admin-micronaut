@@ -5,7 +5,7 @@ micronaut:
     authentication: bearer
     token:
       jwt:
-        enable: false
+        enable: true
         signatures:
           secret:
             generator:
@@ -24,23 +24,29 @@ micronaut:
         max-request-size: 10MB
 resilience4j:
   ratelimiter:
+    enabled: true
     instances:
       # 默认限流配置：适用于大部分 API 请求，30 req/s
       default:
         limitForPeriod: 30  # 刷新周期内允许的请求数量
         limitRefreshPeriod: 1s  # 刷新周期，权限在此周期内恢复
-        timeoutDuration: 0  # 等待权限的超时时间，0 表示不等待立即返回
+        timeoutDuration: 0s  # 等待权限的超时时间，0 表示不等待立即返回
       # 高频限流配置：适用于特殊高并发场景，如秒杀，300 req/s
       high:
         limitForPeriod: 300  # 刷新周期内允许的请求数量
         limitRefreshPeriod: 1s  # 刷新周期
-        timeoutDuration: 0  # 不等待立即返回
+        timeoutDuration: 0s  # 不等待立即返回
       # 敏感操作限流配置：适用于写操作，如创建用户，10 req/s
       sensitive:
         limitForPeriod: 10  # 刷新周期内允许的请求数量
         limitRefreshPeriod: 1s  # 刷新周期
-        timeoutDuration: 0  # 不等待立即返回
+        timeoutDuration: 0s  # 不等待立即返回
 
+auth:
+  # JWT 过期时间（毫秒），例如 3600000 是 1 小时
+  expire-second: 3600
+  # JWT 签名密钥 32位
+  secret: "your-super-secret-key-at-least-32-characters-long"
 # 自定义限流映射配置
 rate-limit:
   mappings:

@@ -1,6 +1,7 @@
 package com.mok.common.infrastructure.tenant;
 
 import com.mok.common.application.exception.BizException;
+import com.mok.common.infrastructure.security.TokenProvider;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.MutableHttpResponse;
 import io.micronaut.http.filter.ServerFilterChain;
@@ -29,7 +30,8 @@ class TenantContextPopulatingFilterTest {
     @BeforeEach
     void setUp() {
         securityService = mock(SecurityService.class);
-        filter = new TenantContextPopulatingFilter(securityService);
+        TokenProvider tokenProvider = mock(TokenProvider.class);
+        filter = new TenantContextPopulatingFilter(securityService, tokenProvider);
         request = mock(HttpRequest.class);
         chain = mock(ServerFilterChain.class);
 

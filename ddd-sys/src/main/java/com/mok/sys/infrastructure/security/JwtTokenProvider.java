@@ -3,7 +3,8 @@ package com.mok.sys.infrastructure.security;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mok.common.infrastructure.common.Const;
-
+import com.mok.common.infrastructure.security.TokenSessionDTO;
+import com.mok.common.infrastructure.security.TokenProvider;
 import io.lettuce.core.ScanArgs;
 import io.lettuce.core.ScanIterator;
 import io.lettuce.core.api.sync.RedisCommands;
@@ -19,10 +20,10 @@ import java.util.stream.Collectors;
 @Singleton
 @RequiredArgsConstructor
 @Slf4j
-public class JwtTokenProvider {
+public class JwtTokenProvider implements TokenProvider {
 
-    @Value("${auth.expiration-ms}")
-    private long jwtExpirationInMs;
+    @Value("${auth.expire-second:3600}")
+    private long jwtExpireSecond;
 
     @Value("${auth.allow-multi-device:true}")
     private boolean allowMultiDevice;
@@ -30,7 +31,8 @@ public class JwtTokenProvider {
     private final RedisCommands<String, String> redisCommands;
     private final ObjectMapper objectMapper;
 
-    public String createToken(String username, String tenantId, CustomUserDetail principal, String ipAddress, String browser) throws JsonProcessingException {
+    @Override
+    public String createToken(String username, String tenantId, com.mok.common.infrastructure.security.CustomUserDetail principal, String ipAddress, String browser) throws JsonProcessingException {
         String userKey = Const.CacheKey.USER_TOKENS + tenantId + ":" + username;
         if (!allowMultiDevice) {
             String oldToken = redisCommands.get(userKey);
@@ -45,17 +47,18 @@ public class JwtTokenProvider {
         session.setToken(token);
         String sessionJson = objectMapper.writeValueAsString(session);
 
-        redisCommands.setex(tokenKey, jwtExpirationInMs / 1000, sessionJson); // setex takes seconds
+        redisCommands.setex(tokenKey, jwtExpireSecond, sessionJson);
         if (allowMultiDevice) {
             redisCommands.sadd(userKey, token);
         } else {
             redisCommands.set(userKey, token);
         }
-        redisCommands.expire(userKey, jwtExpirationInMs / 1000); // expire takes seconds
+        redisCommands.expire(userKey, jwtExpireSecond);
 
         return token;
     }
 
+    @Override
     public TokenSessionDTO getSession(String token) {
         String tokenKey = Const.CacheKey.AUTH_TOKEN + token;
         String data = redisCommands.get(tokenKey);
@@ -66,13 +69,13 @@ public class JwtTokenProvider {
                     return null;
                 }
 
-                Long expire = redisCommands.ttl(tokenKey); // ttl returns seconds, -1 if no expire, -2 if key not exist
+                Long expire = redisCommands.ttl(tokenKey);
 
                 // 剩余时间小于10分钟，刷新
-                if (expire != null && expire > 0 && expire < 600) { // 600 seconds = 10 minutes
-                    redisCommands.expire(tokenKey, jwtExpirationInMs / 1000);
+                if (expire != null && expire > 0 && expire < 600) {
+                    redisCommands.expire(tokenKey, jwtExpireSecond);
                     String userKey = Const.CacheKey.USER_TOKENS + session.getTenantId() + ":" + session.getUsername();
-                    redisCommands.expire(userKey, jwtExpirationInMs / 1000);
+                    redisCommands.expire(userKey, jwtExpireSecond);
                 }
                 return session;
             } catch (Exception e) {

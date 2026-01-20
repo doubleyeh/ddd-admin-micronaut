@@ -10,12 +10,12 @@ class TokenSessionDTOTest {
     void constructor_SetsFields() {
         String username = "testuser";
         String tenantId = "tenant1";
-        CustomUserDetail principal = null; // Can be null
+        com.mok.common.infrastructure.security.CustomUserDetail principal = null; // Can be null
         String ip = "127.0.0.1";
         String browser = "Chrome";
         long loginTime = 1234567890L;
 
-        TokenSessionDTO dto = new TokenSessionDTO(username, tenantId, principal, ip, browser, loginTime);
+        com.mok.common.infrastructure.security.TokenSessionDTO dto = new com.mok.common.infrastructure.security.TokenSessionDTO(username, tenantId, principal, ip, browser, loginTime);
 
         assertEquals(username, dto.getUsername());
         assertEquals(tenantId, dto.getTenantId());
@@ -27,7 +27,7 @@ class TokenSessionDTOTest {
 
     @Test
     void defaultConstructor_CreatesEmptyObject() {
-        TokenSessionDTO dto = new TokenSessionDTO();
+        com.mok.common.infrastructure.security.TokenSessionDTO dto = new com.mok.common.infrastructure.security.TokenSessionDTO();
 
         assertNull(dto.getToken());
         assertNull(dto.getUsername());
@@ -40,12 +40,12 @@ class TokenSessionDTOTest {
 
     @Test
     void settersAndGetters_WorkCorrectly() {
-        TokenSessionDTO dto = new TokenSessionDTO();
+        com.mok.common.infrastructure.security.TokenSessionDTO dto = new com.mok.common.infrastructure.security.TokenSessionDTO();
 
         String token = "testToken";
         String username = "testuser";
         String tenantId = "tenant1";
-        CustomUserDetail principal = null;
+        com.mok.common.infrastructure.security.CustomUserDetail principal = null;
         String ip = "127.0.0.1";
         String browser = "Chrome";
         long loginTime = 1234567890L;

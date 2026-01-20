@@ -2,8 +2,10 @@ package com.mok.sys.domain.repository;
 
 import com.mok.sys.application.dto.user.UserDTO;
 import com.mok.sys.domain.model.User;
+import io.micronaut.data.annotation.Join;
 import io.micronaut.data.annotation.Query;
 import io.micronaut.data.annotation.Repository;
+import io.micronaut.data.jpa.annotation.EntityGraph;
 import io.micronaut.data.jpa.repository.JpaRepository;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
@@ -14,6 +16,7 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends PageableRepository<User, Long>, JpaRepository<User, Long> {
+    @EntityGraph(attributePaths = {"roles"})
     Optional<User> findByUsername(String username);
 
     Optional<User> findByTenantIdAndUsername(String tenantId, String username);

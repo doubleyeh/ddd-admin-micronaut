@@ -81,8 +81,18 @@
         <!-- Resilience4j -->
         <dependency>
             <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-ratelimiter</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-consumer</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-micronaut</artifactId>
-            <version>2.0.1</version>
+            <version>2.3.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.micronaut</groupId>
@@ -94,10 +104,17 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
         <dependency>
-            <groupId>io.github.resilience4j</groupId>
-            <artifactId>resilience4j-ratelimiter</artifactId>
-            <version>2.0.1</version>
+            <groupId>io.micronaut</groupId>
+            <artifactId>micronaut-jackson-databind</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.micronaut.redis</groupId>
+            <artifactId>micronaut-redis-lettuce</artifactId>
+            <scope>compile</scope>
         </dependency>
 
         <!-- Test -->

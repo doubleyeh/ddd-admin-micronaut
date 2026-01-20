@@ -1,4 +1,4 @@
-package com.mok.sys.infrastructure.security;
+package com.mok.common.infrastructure.security;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

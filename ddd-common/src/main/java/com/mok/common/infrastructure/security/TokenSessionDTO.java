@@ -1,4 +1,4 @@
-package com.mok.sys.infrastructure.security;
+package com.mok.common.infrastructure.security;
 
 import io.micronaut.serde.annotation.Serdeable;
 import lombok.Getter;
