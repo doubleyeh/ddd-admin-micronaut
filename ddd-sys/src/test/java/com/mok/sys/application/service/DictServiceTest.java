@@ -2,18 +2,14 @@ package com.mok.sys.application.service;
 
 import com.mok.common.application.exception.BizException;
 import com.mok.common.application.exception.NotFoundException;
-import com.mok.sys.application.dto.dict.DictDataDTO;
-import com.mok.sys.application.dto.dict.DictDataSaveDTO;
-import com.mok.sys.application.dto.dict.DictTypeDTO;
-import com.mok.sys.application.dto.dict.DictTypeQuery;
-import com.mok.sys.application.dto.dict.DictTypeSaveDTO;
+import com.mok.common.infrastructure.common.Const;
+import com.mok.sys.application.dto.dict.*;
 import com.mok.sys.application.mapper.DictDataMapper;
 import com.mok.sys.application.mapper.DictTypeMapper;
 import com.mok.sys.domain.model.DictData;
 import com.mok.sys.domain.model.DictType;
 import com.mok.sys.domain.repository.DictDataRepository;
 import com.mok.sys.domain.repository.DictTypeRepository;
-import com.mok.common.infrastructure.common.Const;
 import io.lettuce.core.api.sync.RedisCommands;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
@@ -21,7 +17,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -235,7 +230,7 @@ class DictServiceTest {
         Pageable pageable = Pageable.from(0, 10);
         
         DictType dictType = DictType.create("Test Type", "test_type", 1, "Test remark");
-        Page<DictType> entityPage = Page.of(Arrays.asList(dictType), Pageable.from(0, 10), 1L);
+        Page<DictType> entityPage = Page.of(List.of(dictType), Pageable.from(0, 10), 1L);
         
         when(dictTypeRepository.findAll(any(), any())).thenReturn(entityPage);
         when(dictTypeMapper.toDto(dictType)).thenReturn(new DictTypeDTO());
@@ -253,7 +248,7 @@ class DictServiceTest {
         DictData dictData = DictData.create(typeCode, "Label", "Value", 1, null, null, false, null);
         
         when(dictDataRepository.findByTypeCodeOrderBySortAsc(typeCode))
-                .thenReturn(Arrays.asList(dictData));
+                .thenReturn(List.of(dictData));
         when(dictDataMapper.toDto(dictData)).thenReturn(new DictDataDTO());
         
         List<DictDataDTO> result = dictService.getDataByType(typeCode);

@@ -61,8 +61,8 @@ jpa:
   default:
     entity-scan:
       packages:
-        - "com.mok.domain.common"
-        - 'com.mok.domain.sys.model'
+        - "com.mok.common.domain"
+        - 'com.mok.sys.domain.model'
     properties:
       hibernate:
         hbm2ddl:

@@ -49,10 +49,6 @@
         <micronaut.test.resources.enabled>false</micronaut.test.resources.enabled>
         <exec.mainClass>com.mok.Application</exec.mainClass>
         <mapstruct.version>1.6.3</mapstruct.version>
-        <micronaut.core.version>4.10.7</micronaut.core.version>
-        <micronaut.data.version>4.10.7</micronaut.data.version>
-        <micronaut.security.version>4.10.7</micronaut.security.version>
-        <micronaut.serialization.version>4.10.7</micronaut.serialization.version>
     </properties>
 
     <repositories>
@@ -64,14 +60,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>io.micronaut.maven</groupId>
-                <artifactId>micronaut-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -120,32 +108,6 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.14</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                        <configuration>
-                            <excludes>
-                                <exclude>**/*MapperImpl.class</exclude>
-                                <exclude>**/mapper/**/*MapperImpl.class</exclude>
-                                <exclude>**/dto/**/*</exclude>
-                            </excludes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 

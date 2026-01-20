@@ -28,7 +28,7 @@ replay_pid*
 /target
 /.idea
 /micronaut-cli.yml
-/aot-jar.properties
+/startup/src/main/resources/aot-jar.properties
 target
 .idea
 .classpath
