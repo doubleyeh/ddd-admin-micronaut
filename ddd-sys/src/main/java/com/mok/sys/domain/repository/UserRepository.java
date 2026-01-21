@@ -1,5 +1,6 @@
 package com.mok.sys.domain.repository;
 
+import com.mok.common.infrastructure.repository.filter.TenantFilter;
 import com.mok.sys.application.dto.user.UserDTO;
 import com.mok.sys.domain.model.User;
 import io.micronaut.data.annotation.Join;
@@ -15,6 +16,7 @@ import io.micronaut.data.repository.jpa.criteria.PredicateSpecification;
 import java.util.Optional;
 
 @Repository
+@TenantFilter
 public interface UserRepository extends PageableRepository<User, Long>, JpaRepository<User, Long> {
     @EntityGraph(attributePaths = {"roles"})
     Optional<User> findByUsername(String username);

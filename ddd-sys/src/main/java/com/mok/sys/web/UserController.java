@@ -5,25 +5,27 @@ import com.mok.sys.application.service.UserService;
 import com.mok.common.infrastructure.common.Const;
 import com.mok.sys.infrastructure.log.BusinessType;
 import com.mok.sys.infrastructure.log.OperLogRecord;
-import com.mok.common.infrastructure.tenant.TenantContextHolder;
 import com.mok.common.infrastructure.util.PasswordGenerator;
 import com.mok.common.web.RestResponse;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import io.micronaut.http.annotation.*;
 import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.utils.SecurityService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @Controller("/api/users")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
+    private final SecurityService securityService;
 
     @Get
     @Secured("hasAuthority('user:list')")
@@ -96,7 +98,9 @@ public class UserController {
     }
 
     private boolean isCurrentUser(Long id) {
-        Long currentUserId = TenantContextHolder.getUserId();
-        return currentUserId != null && currentUserId.equals(id);
+        Optional<Long> currentUserIdOpt = securityService.getAuthentication()
+                .map(auth -> auth.getAttributes().get("userId"))
+                .map(Long.class::cast);
+        return currentUserIdOpt.isPresent() && currentUserIdOpt.get().equals(id);
     }
 }

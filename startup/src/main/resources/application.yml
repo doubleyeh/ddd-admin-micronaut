@@ -1,6 +1,11 @@
 micronaut:
   application:
     name: ddd
+  multitenancy:
+    tenantresolver:
+      principal:
+        enabled: true
+        claim: tenantId
   security:
     authentication: bearer
     token:

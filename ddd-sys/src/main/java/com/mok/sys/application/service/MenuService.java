@@ -5,6 +5,7 @@ import com.mok.sys.application.dto.menu.MenuDTO;
 import com.mok.sys.application.dto.menu.MenuOptionDTO;
 import com.mok.sys.application.dto.permission.PermissionOptionDTO;
 import com.mok.sys.application.mapper.MenuMapper;
+import com.mok.sys.application.service.TenantPackageService;
 import com.mok.sys.domain.model.Menu;
 import com.mok.sys.domain.model.Tenant;
 import com.mok.sys.domain.model.Permission;
@@ -12,11 +13,11 @@ import com.mok.sys.domain.repository.MenuRepository;
 import com.mok.sys.domain.repository.PermissionRepository;
 import com.mok.sys.domain.repository.TenantRepository;
 import com.mok.common.infrastructure.common.Const;
-import com.mok.common.infrastructure.tenant.TenantContextHolder;
 import com.mok.common.infrastructure.util.SysUtil;
 import io.lettuce.core.api.sync.RedisCommands;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.util.CollectionUtils;
+import io.micronaut.security.utils.SecurityService;
 import io.micronaut.transaction.annotation.Transactional;
 import jakarta.inject.Singleton;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class MenuService {
     private final MenuMapper menuMapper;
     private final TenantRepository tenantRepository;
     private final TenantPackageService tenantPackageService;
+    private final SecurityService securityService;
 
     @Transactional(readOnly = true)
     public List<MenuDTO> findAll() {
@@ -155,7 +157,11 @@ public class MenuService {
     public List<MenuOptionDTO> buildMenuAndPermissionTree() {
         List<Menu> entities = menuRepository.findAll();
 
-        String currentTenantId = TenantContextHolder.getTenantId();
+        String currentTenantId = securityService.getAuthentication()
+                .map(auth -> auth.getAttributes().get("tenantId"))
+                .map(String.class::cast)
+                .orElse(null);
+
         if (!SysUtil.isSuperTenant(currentTenantId)) {
             Long packageId = tenantRepository.findByTenantId(currentTenantId)
                     .map(Tenant::getPackageId)
@@ -223,7 +229,7 @@ public class MenuService {
 
         return buildTreeFromFlatList(flatList);
     }
-
+    
     private List<MenuOptionDTO> buildTreeFromFlatList(List<MenuOptionDTO> flatList) {
         Map<Long, MenuOptionDTO> dtoMap = flatList.stream()
                 .collect(Collectors.toMap(MenuOptionDTO::getId, dto -> dto));

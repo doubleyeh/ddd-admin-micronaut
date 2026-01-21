@@ -7,7 +7,6 @@ import com.mok.sys.application.dto.user.UserPasswordDTO;
 import com.mok.sys.application.service.UserService;
 import com.mok.sys.infrastructure.log.BusinessType;
 import com.mok.sys.infrastructure.log.OperLogRecord;
-import com.mok.common.infrastructure.tenant.TenantContextHolder;
 import com.mok.common.web.RestResponse;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;

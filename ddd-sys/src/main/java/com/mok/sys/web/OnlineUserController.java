@@ -1,22 +1,27 @@
 package com.mok.sys.web;
 
+import com.mok.common.infrastructure.common.Const;
+import com.mok.common.infrastructure.util.SysUtil;
 import com.mok.sys.application.dto.tenant.TenantOptionDTO;
 import com.mok.sys.application.service.TenantService;
 import com.mok.sys.infrastructure.log.BusinessType;
 import com.mok.sys.infrastructure.log.OperLogRecord;
 import com.mok.sys.infrastructure.security.JwtTokenProvider;
 import com.mok.sys.infrastructure.security.OnlineUserDTO;
-import com.mok.common.infrastructure.tenant.TenantContextHolder;
 import com.mok.common.web.RestResponse;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
+import io.micronaut.http.context.ServerRequestContext;
+import io.micronaut.multitenancy.tenantresolver.TenantResolver;
 import io.micronaut.security.annotation.Secured;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -25,14 +30,19 @@ public class OnlineUserController {
 
     private final JwtTokenProvider tokenProvider;
     private final TenantService tenantService;
+    private final TenantResolver tenantResolver;
 
     @Get("/list")
     @Secured("hasAuthority('admin:online-user')")
     public RestResponse<List<OnlineUserDTO>> list() {
         Map<String, String> tenantMap = tenantService.findOptions(null).stream()
                 .collect(Collectors.toMap(TenantOptionDTO::getTenantId, TenantOptionDTO::getName, (a, b) -> a));
-        String currentTenantId = TenantContextHolder.getTenantId();
-        boolean isSuper = TenantContextHolder.isSuperTenant();
+
+        String currentTenantId = Optional.ofNullable(tenantResolver.resolveTenantId())
+                .map(String::valueOf)
+                .orElse(null);
+
+        boolean isSuper = SysUtil.isSuperTenant(currentTenantId);
 
         return RestResponse.success(tokenProvider.getAllOnlineUsers(tenantMap, currentTenantId, isSuper));
     }

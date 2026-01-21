@@ -1,6 +1,7 @@
 package com.mok.sys.domain.repository;
 
 
+import com.mok.common.infrastructure.repository.filter.TenantFilter;
 import com.mok.sys.application.dto.role.RoleDTO;
 import com.mok.sys.domain.model.Role;
 import io.micronaut.data.annotation.Query;
@@ -15,6 +16,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Repository
+@TenantFilter
 public interface RoleRepository extends PageableRepository<Role, Long>, JpaRepository<Role, Long> {
 
     @Query("select count(u) > 0 from com.mok.ddd.domain.sys.model.User u join u.roles r where r.id = :roleId")

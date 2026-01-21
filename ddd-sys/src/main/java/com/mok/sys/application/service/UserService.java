@@ -15,11 +15,11 @@ import com.mok.sys.domain.model.*;
 import com.mok.sys.domain.repository.*;
 import com.mok.common.infrastructure.common.Const;
 import com.mok.sys.infrastructure.sys.security.PasswordEncoder;
-import com.mok.common.infrastructure.tenant.TenantContextHolder;
 import com.mok.common.infrastructure.util.SysUtil;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
+import io.micronaut.security.utils.SecurityService;
 import io.micronaut.transaction.annotation.Transactional;
 import jakarta.inject.Singleton;
 import lombok.AllArgsConstructor;
@@ -41,6 +41,7 @@ public class UserService {
     private final PermissionService permissionService;
     private final TenantRepository tenantRepository;
     private final TenantPackageRepository tenantPackageRepository;
+    private final SecurityService securityService;
 
     @Transactional(readOnly = true)
     public Page<UserDTO> findPage(UserQuery query, Pageable pageable) {
@@ -54,7 +55,12 @@ public class UserService {
 
     @Transactional
     public UserDTO create(@NonNull UserPostDTO dto) {
-        if (!SysUtil.isSuperTenant(TenantContextHolder.getTenantId()) && !Objects.equals(dto.getTenantId(), TenantContextHolder.getTenantId())) {
+        String currentTenantId = securityService.getAuthentication()
+                .map(auth -> auth.getAttributes().get("tenantId"))
+                .map(String.class::cast)
+                .orElse(null);
+
+        if (!SysUtil.isSuperTenant(currentTenantId) && !Objects.equals(dto.getTenantId(), currentTenantId)) {
             throw new BizException("无权限管理其他用户");
         }
         if (userRepository.findByTenantIdAndUsername(dto.getTenantId(), dto.getUsername()).isPresent()) {

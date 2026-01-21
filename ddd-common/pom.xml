@@ -45,6 +45,12 @@
 
 
         <dependency>
+            <groupId>io.micronaut.multitenancy</groupId>
+            <artifactId>micronaut-multitenancy</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
             <groupId>io.micronaut.security</groupId>
             <artifactId>micronaut-security</artifactId>
             <scope>compile</scope>

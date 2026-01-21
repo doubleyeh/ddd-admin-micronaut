@@ -1,6 +1,6 @@
 package com.mok.common.domain;
 
-import com.mok.common.infrastructure.tenant.TenantContextHolder;
+import com.mok.common.infrastructure.multitenancy.TenantEntityListener;
 import io.micronaut.core.annotation.Introspected;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Introspected
+@EntityListeners(TenantEntityListener.class)
 public abstract class BaseEntity {
 
     @Id
@@ -29,24 +30,4 @@ public abstract class BaseEntity {
 
     @Column(name = "update_time")
     private LocalDateTime updateTime;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createTime = LocalDateTime.now();
-        this.updateTime = LocalDateTime.now();
-        if (this.createBy == null) {
-            this.createBy = TenantContextHolder.getUsername();
-        }
-        if (this.updateBy == null) {
-            this.updateBy = TenantContextHolder.getUsername();
-        }
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updateTime = LocalDateTime.now();
-        if(this.updateBy == null){
-            this.updateBy = TenantContextHolder.getUsername();
-        }
-    }
 }

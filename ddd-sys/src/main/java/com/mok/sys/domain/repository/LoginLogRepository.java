@@ -1,6 +1,7 @@
 package com.mok.sys.domain.repository;
 
 
+import com.mok.common.infrastructure.repository.filter.TenantFilter;
 import com.mok.sys.application.dto.log.LoginLogDTO;
 import com.mok.sys.domain.model.LoginLog;
 import io.micronaut.data.annotation.Query;
@@ -12,6 +13,7 @@ import io.micronaut.data.repository.PageableRepository;
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification;
 
 @Repository
+@TenantFilter
 public interface LoginLogRepository extends PageableRepository<LoginLog, Long>, JpaRepository<LoginLog, Long> {
 
     @Query(value = """

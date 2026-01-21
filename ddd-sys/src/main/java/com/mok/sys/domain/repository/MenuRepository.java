@@ -1,5 +1,6 @@
 package com.mok.sys.domain.repository;
 
+import com.mok.common.infrastructure.repository.filter.TenantFilter;
 import com.mok.sys.domain.model.DictType;
 import com.mok.sys.domain.model.Menu;
 import io.micronaut.data.annotation.Query;
@@ -12,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Repository
+@TenantFilter
 public interface MenuRepository extends PageableRepository<Menu, Long>, JpaRepository<Menu, Long> {
     List<Menu> findByParentId(Long parentId);
 

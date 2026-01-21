@@ -1,9 +1,8 @@
 package com.mok.sys.infrastructure.log;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mok.sys.domain.model.OperLog;
-import com.mok.common.infrastructure.tenant.TenantContextHolder;
 import com.mok.common.infrastructure.util.SysUtil;
+import com.mok.sys.domain.model.OperLog;
 import io.micronaut.aop.InterceptorBean;
 import io.micronaut.aop.MethodInterceptor;
 import io.micronaut.aop.MethodInvocationContext;
@@ -12,9 +11,12 @@ import io.micronaut.core.annotation.AnnotationValue;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.context.ServerRequestContext;
+import io.micronaut.multitenancy.tenantresolver.TenantResolver;
+import io.micronaut.security.utils.SecurityService;
 import jakarta.inject.Singleton;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 
 @Singleton
 @Slf4j
@@ -24,6 +26,8 @@ public class OperLogInterceptor implements MethodInterceptor<Object, Object> {
 
     private final ApplicationEventPublisher<OperLogEvent> eventPublisher;
     private final ObjectMapper objectMapper;
+    private final SecurityService securityService;
+    private final TenantResolver tenantResolver;
 
     @Nullable
     @Override
@@ -70,8 +74,8 @@ public class OperLogInterceptor implements MethodInterceptor<Object, Object> {
                 requestMethod = request.getMethodName();
             }
 
-            String username = TenantContextHolder.getUsername();
-            String tenantId = TenantContextHolder.getTenantId();
+            String username = securityService.username().orElse("anonymous");
+            String tenantId = tenantResolver.resolveTenantId();
 
             String className = context.getTarget().getClass().getName();
             String methodName = context.getExecutableMethod().getMethodName();

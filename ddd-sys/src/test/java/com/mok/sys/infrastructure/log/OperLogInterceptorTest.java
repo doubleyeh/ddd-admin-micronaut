@@ -1,7 +1,6 @@
 package com.mok.sys.infrastructure.log;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mok.sys.domain.model.OperLog;
 import com.mok.common.infrastructure.tenant.TenantContextHolder;
 import com.mok.common.infrastructure.util.SysUtil;
 import io.micronaut.aop.MethodInvocationContext;
@@ -10,12 +9,13 @@ import io.micronaut.core.annotation.AnnotationValue;
 import io.micronaut.inject.ExecutableMethod;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.context.ServerRequestContext;
+import io.micronaut.multitenancy.tenantresolver.TenantResolver;
+import io.micronaut.security.utils.SecurityService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
-import java.lang.reflect.Method;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,7 +25,6 @@ import static org.mockito.Mockito.*;
 class OperLogInterceptorTest {
 
     private ApplicationEventPublisher<OperLogEvent> eventPublisher;
-    private ObjectMapper objectMapper;
     private OperLogInterceptor interceptor;
     private MockedStatic<TenantContextHolder> tenantContextHolderMock;
     private MockedStatic<ServerRequestContext> serverRequestContextMock;
@@ -34,15 +33,17 @@ class OperLogInterceptorTest {
     @BeforeEach
     void setUp() {
         eventPublisher = mock(ApplicationEventPublisher.class);
-        objectMapper = new ObjectMapper();
-        interceptor = new OperLogInterceptor(eventPublisher, objectMapper);
+        ObjectMapper objectMapper = new ObjectMapper();
+        SecurityService securityService = mock(SecurityService.class);
+        TenantResolver tenantResolver = mock(TenantResolver.class);
+        interceptor = new OperLogInterceptor(eventPublisher, objectMapper, securityService, tenantResolver);
 
         tenantContextHolderMock = mockStatic(TenantContextHolder.class);
         serverRequestContextMock = mockStatic(ServerRequestContext.class);
         sysUtilMock = mockStatic(SysUtil.class);
 
-        tenantContextHolderMock.when(TenantContextHolder::getUsername).thenReturn("testUser");
-        tenantContextHolderMock.when(TenantContextHolder::getTenantId).thenReturn("tenant1");
+        when(securityService.username()).thenReturn(Optional.of("testUser"));
+        when(tenantResolver.resolveTenantId()).thenReturn("tenant1");
     }
 
     @AfterEach
