@@ -3,6 +3,7 @@ package com.mok.sys.infrastructure.security;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mok.common.infrastructure.common.Const;
+import com.mok.common.infrastructure.security.CustomUserDetail;
 import com.mok.common.infrastructure.security.TokenSessionDTO;
 import com.mok.common.infrastructure.security.TokenProvider;
 import io.lettuce.core.ScanArgs;
@@ -32,7 +33,7 @@ public class JwtTokenProvider implements TokenProvider {
     private final ObjectMapper objectMapper;
 
     @Override
-    public String createToken(String username, String tenantId, com.mok.common.infrastructure.security.CustomUserDetail principal, String ipAddress, String browser) throws JsonProcessingException {
+    public String createToken(String username, String tenantId, CustomUserDetail principal, String ipAddress, String browser) throws JsonProcessingException {
         String userKey = Const.CacheKey.USER_TOKENS + tenantId + ":" + username;
         if (!allowMultiDevice) {
             String oldToken = redisCommands.get(userKey);
